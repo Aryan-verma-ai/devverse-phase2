@@ -1,0 +1,12 @@
+{
+  "name": "devverse",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "client"
+  ],
+  "scripts": {
+    "dev:client": "npm run dev --workspace=client",
+    "build:client": "npm run build --workspace=client"
+  }
+}
