@@ -79,7 +79,7 @@ PHASE B — FRONTEND FOUNDATION
 =============================
 
 PROMPT 05 — Set up the client workspace only
---------------------------------------------
+------------- -------------------------------
 Create the client workspace using Vite + React + JavaScript/JSX according to SYSTEM-DESIGN.md. Preserve the vanilla Phase 1 files as a reference or safe baseline; do not delete them. Add only the minimum dependencies needed for the client foundation. Create a minimal app that starts and builds. Do not migrate feature pages yet. Update scripts/docs only as needed for this task.
 
 Acceptance:
