@@ -1,0 +1,502 @@
+DEVVERSE — ANTIGRAVITY TASK-BY-TASK PROMPT FILE
+================================================
+
+HOW TO USE THIS FILE
+--------------------
+1. Open the existing DevVerse repository in Antigravity.
+2. Keep SYSTEM-DESIGN.md and this file available in the project root or provide them as context.
+3. Send ONLY ONE numbered prompt at a time. Do not paste the whole file and ask Antigravity to execute everything.
+4. Review the checkpoint report and run the app/tests yourself where possible.
+5. Approve the task explicitly before sending the next prompt.
+6. If a task fails, ask Antigravity to fix ONLY that task, re-run its checks, and report again. Do not skip ahead.
+7. Keep a clean Git commit/checkpoint after each approved task or small group of tasks.
+
+GLOBAL RULES — APPLY TO EVERY PROMPT
+------------------------------------
+- Read SYSTEM-DESIGN.md and the current task before editing.
+- Inspect the real repository and relevant files first. Do not assume paths, dependencies, scripts, or behavior.
+- Do not rebuild the entire application in one pass.
+- Make changes only for the current task. Do not begin future tasks or perform unrelated refactors.
+- Preserve DevVerse's identity, current useful artwork, violet/cyan direction, themes, and existing destinations unless the task explicitly changes them.
+- Do not remove the Phase 1 source before the new version has been verified. Keep a recoverable baseline.
+- Do not claim a test, build, visual check, API call, or database operation passed unless it was actually run and observed.
+- Never store plaintext passwords or long-lived auth tokens in localStorage. Never commit secrets.
+- No fake success states, random activity, or unlabelled demo metrics.
+- Use React declaratively; do not manually mutate DOM elements owned by React.
+- Keep code understandable for a college project. Do not add unapproved frameworks or services.
+- After the task, report exact changed files, behavior, commands/tests and actual results, manual checks, remaining limitations, and acceptance criteria.
+- Finish with: "READY FOR REVIEW — STOPPED. I have not started the next task."
+- Wait for the user to approve before proceeding.
+
+CHECKPOINT FORMAT REQUIRED AFTER EVERY TASK
+-------------------------------------------
+Task ID and title:
+Files changed:
+What changed:
+Commands run and exact results:
+Manual checks actually performed:
+Acceptance criteria (PASS / FAIL / NOT RUN):
+Known limitations or blockers:
+What the user should review:
+Status: READY FOR REVIEW — STOPPED
+
+PHASE A — INSPECT AND PLAN
+==========================
+
+PROMPT 01 — Repository inventory and baseline report
+----------------------------------------------------
+Inspect the current DevVerse repository without modifying application code. Read SYSTEM-DESIGN.md and the existing project documentation. Identify the actual entry points, pages, styles, scripts, assets, data sources, current Git state, package manifests, and any tests. Confirm which features are local/demo-only and which are genuinely persistent. Do not infer that a feature works from its name alone. Do not install dependencies or edit files yet.
+
+Deliver:
+1. Actual repository tree for relevant files.
+2. A mapping from each existing page to its scripts/styles and main behaviors.
+3. Current run/build/test instructions, or explicitly say they are absent.
+4. Risks and features that could be lost during migration.
+5. A list of discrepancies between the repository and SYSTEM-DESIGN.md.
+6. A suggested migration map that preserves every current destination.
+
+Checkpoint: no application files changed. Stop and wait for review.
+
+PROMPT 02 — Protect the Phase 1 baseline
+----------------------------------------
+Based on the inventory, prepare a recoverable baseline before migration. If Git is available, report branch/status and recommend or create a clearly named checkpoint branch/commit only if the repository is clean enough and the user has authorized repository changes. Do not discard or overwrite uncommitted user work. If Git is unavailable, create a safe backup strategy and explain its location. Do not change application behavior.
+
+Checkpoint: show the exact baseline/backup method and any uncommitted work preserved. Stop for review.
+
+PROMPT 03 — Feature parity and scope matrix
+-------------------------------------------
+Create or update `docs/FEATURE-PARITY.md` with one row per existing DevVerse page/feature. For each, document current behavior, data source (seed/localStorage/sessionStorage/simulated/backend), intended Phase 2 behavior, migration priority, and acceptance test. Mark uncertain behavior as "needs verification"; do not guess. Keep all 16 current HTML destinations represented. Do not build features yet.
+
+Checkpoint: review the matrix for missing pages or incorrectly assumed behavior. Stop for approval.
+
+PROMPT 04 — Confirm project scripts and dependencies plan
+---------------------------------------------------------
+Inspect the current package/dependency situation and propose the minimum package/workspace setup for React/Vite, Express, Mongoose, routing, validation, authentication, uploads and tests. Do not install packages or rewrite manifests yet. Avoid adding libraries unless their purpose is clear. Explain which package is used on client vs server, and which syllabus concepts will be demonstrated. Include commands that will eventually be supported.
+
+Checkpoint: no dependencies installed. Stop for approval.
+
+PHASE B — FRONTEND FOUNDATION
+=============================
+
+PROMPT 05 — Set up the client workspace only
+--------------------------------------------
+Create the client workspace using Vite + React + JavaScript/JSX according to SYSTEM-DESIGN.md. Preserve the vanilla Phase 1 files as a reference or safe baseline; do not delete them. Add only the minimum dependencies needed for the client foundation. Create a minimal app that starts and builds. Do not migrate feature pages yet. Update scripts/docs only as needed for this task.
+
+Acceptance:
+- Client development server starts.
+- Production client build succeeds.
+- Existing Phase 1 source remains recoverable.
+- No feature pages have been migrated yet.
+
+Run the actual commands and report their output. Stop for review.
+
+PROMPT 06 — Central design tokens and global styles
+--------------------------------------------------
+Inspect the actual Phase 1 CSS and assets first. Create a small centralized design-token layer for colors, typography, spacing, radius, shadows, focus states and motion preferences. Preserve DevVerse's established visual identity; do not blindly replace colors with guessed values. Add baseline reset/global styles and ensure readable contrast. Do not migrate pages or redesign the whole interface.
+
+Acceptance:
+- Tokens are used by a small foundation/demo screen.
+- Keyboard focus is visible.
+- Reduced-motion preference is respected where motion exists.
+- No unrelated old CSS is deleted.
+
+Run client build and report. Stop for review.
+
+PROMPT 07 — App shell and responsive navigation
+------------------------------------------------
+Build the reusable React app shell and primary navigation using the actual current page inventory. Keep DevVerse branding and important destinations. Provide desktop and keyboard-accessible mobile navigation, clear active-route state, semantic links, and a sensible layout container. Use placeholder route content only; do not migrate the real feature pages in this task.
+
+Acceptance:
+- Shell renders consistently.
+- Navigation works with keyboard and pointer.
+- Mobile menu can open/close and does not overflow at narrow widths.
+- Current route is identifiable.
+- Build passes.
+
+Report any destinations not yet wired. Stop for review.
+
+PROMPT 08 — React Router and legacy URL behavior
+------------------------------------------------
+Add React Router and map the existing DevVerse destinations to route placeholders. Support direct URL entry, refresh, browser back/forward, and a not-found page. Plan old `.html` URL redirects only after checking current links and deployment behavior; implement deliberate redirects where appropriate. Do not migrate feature content yet. Do not let SPA fallback turn `/api` or missing static assets into the React index.
+
+Acceptance:
+- Every agreed destination has a route.
+- Direct route load and refresh work in development.
+- Back/forward works.
+- Unknown route shows a useful not-found page.
+- Legacy links are documented and any implemented redirects are tested.
+
+Run build and route checks. Stop for review.
+
+PROMPT 09 — Shared UI primitives
+--------------------------------
+Create only the shared components needed for the first vertical slice: `Button`, `FormField`, `ProjectCard` (using clear props), `LoadingState`, `EmptyState`, `ErrorMessage`/`StatusMessage`, and an accessible `Dialog` only if the current flow needs one. Use semantic HTML, labels, visible focus and consistent styles. Avoid premature abstraction. Do not connect an API or migrate all pages.
+
+Acceptance:
+- Components are reusable and documented by clear prop names.
+- ProjectCard does not secretly fetch global data.
+- Forms can display help/error/busy states.
+- Keyboard behavior is reasonable.
+- Build passes.
+
+Stop for review.
+
+PHASE C — PROJECT DISCOVERY VERTICAL SLICE
+==========================================
+
+PROMPT 10 — Explore projects with seed data
+-------------------------------------------
+Migrate the Explore Projects page into React using a clearly isolated temporary seed-data module derived from the existing project. Do not connect MongoDB/API yet. Implement search, supported filters, sorting and reset controls. Filtering must be deterministic and must not mutate the canonical data array. Preserve current project content where possible. Label the source as temporary seed/demo data in code/docs.
+
+Acceptance:
+- Cards render from data.
+- Search/filter/sort/reset work together.
+- No-results state is helpful.
+- Query text is never injected as HTML.
+- Responsive layout works at phone/tablet/desktop sizes.
+- Build passes.
+
+Test representative filter combinations and report results. Stop for review.
+
+PROMPT 11 — Project detail page
+-------------------------------
+Migrate the project detail page. Inspect current navigation and data shape so clicking a card opens the correct project. Display only fields that exist or are explicitly part of the agreed schema: title, description, author, technologies, repository/demo links, image/screenshots and supported interactions. Validate link protocols and handle missing/unknown project IDs with a useful not-found state. Keep data in the temporary seed source for now.
+
+Acceptance:
+- Clicking a card opens the matching detail route.
+- Direct detail URL works.
+- Missing project has a graceful state.
+- External links are safe and clearly labeled.
+- Build passes.
+
+Stop for review.
+
+PROMPT 12 — Submit project form (client only)
+--------------------------------------------
+Migrate the Submit Project form into React with controlled inputs and clear validation. Match the existing feature scope; do not invent fields without a reason. Support manual submission into a clearly marked temporary client-side/seed workflow only if that is necessary for this stage. Do not claim cross-user persistence. Add loading/success/error states that reflect real actions, not fake timers. Ensure repository/demo URLs are validated and fields remain editable.
+
+Acceptance:
+- Required fields are validated.
+- Errors are associated with inputs.
+- Submit behavior is explicit and honest about temporary storage.
+- Keyboard use and responsive form layout work.
+- Build passes.
+
+Stop for review.
+
+PROMPT 13 — GitHub repository import
+------------------------------------
+Inspect the current GitHub import implementation and preserve its useful behavior. Implement or migrate import as a separate service/helper with a clear UI flow. Users must be able to edit imported values before submitting. Handle invalid URLs, missing repositories, rate limits, network errors and API response shape changes. Manual project entry must remain usable if import fails. Do not embed a GitHub secret/token in browser code.
+
+Acceptance:
+- Valid public repository import works if the existing environment/network permits.
+- Invalid/missing/private/rate-limited/network failure cases produce useful messages.
+- Manual form remains usable.
+- Imported fields are editable.
+- No secret is bundled into the client.
+
+Test the actual available cases and mark any network-dependent case NOT RUN if it could not be verified. Stop for review.
+
+PROMPT 14 — Review the first client vertical slice
+-------------------------------------------------
+Run a focused review of Explore → Project Detail → Submit Project → GitHub import. Fix only defects in this slice. Add appropriate unit tests for pure filtering/sorting/validation helpers if the test setup exists; otherwise add the smallest suitable test setup only with explicit explanation. Test direct routes, form validation, empty states and responsive layout. Do not start backend work.
+
+Acceptance:
+- Client production build passes.
+- Main project flow is navigable.
+- No known blocker is hidden.
+- Test results are reported exactly.
+- Visual checks are only claimed if the app was launched and inspected.
+
+Stop for user review and explicit approval before backend tasks.
+
+PHASE D — NODE/EXPRESS FOUNDATION
+=================================
+
+PROMPT 15 — Server workspace and health endpoint
+------------------------------------------------
+Create the minimal Node.js/Express server using ES modules, a clear `app.js` and `index.js`, validated environment configuration, a `/api/health` endpoint, and predictable startup/shutdown behavior. Do not add feature routes or database models yet. Keep client and server scripts understandable. Add `.env.example` with placeholders only and update `.gitignore` to exclude secrets and local dependencies.
+
+Acceptance:
+- Server starts with documented command.
+- `GET /api/health` returns a small JSON success response.
+- Missing required configuration produces a useful error.
+- Unknown `/api` route returns 404, not the React app.
+- No real secrets are committed.
+
+Run actual commands and stop for review.
+
+PROMPT 16 — API middleware, validation and errors
+------------------------------------------------
+Add minimal shared middleware: JSON parsing with appropriate limits, request logging without sensitive values, not-found handling, centralized error responses, and a validation pattern. Define a consistent JSON error shape. Add basic rate limiting for authentication routes when they are introduced, or document the intended location now. Do not create feature APIs in this task.
+
+Acceptance:
+- Malformed JSON is handled predictably.
+- Unknown API route returns structured 404.
+- Unexpected errors do not expose stack traces to clients.
+- Validation errors have useful status/code/message.
+- Existing health endpoint still works.
+
+Add tests where feasible. Stop for review.
+
+PROMPT 17 — MongoDB connection and model design review
+------------------------------------------------------
+Before writing models, compare the current forms and feature-parity matrix against SYSTEM-DESIGN.md. Propose the minimum initial Mongoose schemas, required fields, indexes, reference strategy and validation. Explain any field that cannot be grounded in the existing UI or agreed scope. Then implement only the MongoDB connection/configuration and one documented startup readiness check; do not create all feature models yet.
+
+Acceptance:
+- Database URL is read from environment, never hardcoded.
+- Connection failure is reported clearly and safely.
+- Startup behavior is deliberate and documented.
+- No credentials are committed.
+- No unrelated models are added.
+
+Stop for review.
+
+PROMPT 18 — User and Project models
+-----------------------------------
+Implement only the agreed `User` and `Project` Mongoose models. Add schema validation, normalized unique username/email indexes, timestamps, safe serialization, and a Project owner reference. Add only fields supported by current UI/feature requirements. Ensure `passwordHash` is never returned in normal API responses. Do not implement authentication or project routes in this task.
+
+Acceptance:
+- Models compile and can be exercised against the configured database/test setup.
+- Duplicate username/email constraints are represented.
+- Project owner reference is valid.
+- Password hash is excluded from normal serialization.
+- Schema fields are documented.
+
+Run tests/checks and stop for review.
+
+PROMPT 19 — Project API CRUD
+----------------------------
+Implement project list/detail/create/update/delete endpoints using routes, thin controllers, service logic where useful, validation and centralized errors. Add pagination or a documented bounded result strategy for list endpoints. For this stage, protect write endpoints with a temporary clearly documented development guard only if authentication is not yet implemented; do not expose unauthenticated production writes. Do not connect the React client yet.
+
+Acceptance:
+- Valid list/detail/create/update/delete flows work against MongoDB.
+- Invalid IDs and invalid fields return useful errors.
+- Unknown project returns 404.
+- Errors are consistent.
+- API tests cover success and failure cases.
+
+Stop for review.
+
+PROMPT 20 — Connect React project service to API
+------------------------------------------------
+Create a centralized API client and project service. Replace temporary seed reads/writes in the migrated project slice with actual API calls. Show real loading, empty, success and failure states. Do not silently fall back to seed data when the API fails; if a demo fallback is deliberately retained, label it visibly and make the mode explicit. Ensure server responses are canonical after writes.
+
+Acceptance:
+- Explore list comes from API.
+- Detail uses the API.
+- Create/edit/delete are wired only where authorized routes exist.
+- API failure is visible and not falsely shown as success.
+- Build and API/client checks pass.
+
+Stop for review.
+
+PHASE E — AUTHENTICATION AND USER FEATURES
+==========================================
+
+PROMPT 21 — Authentication design decision and signup/login
+-----------------------------------------------------------
+Before implementing auth, document the chosen browser auth approach: cookie/session or JWT, token lifetime, cookie flags, CSRF considerations if applicable, logout invalidation, and local development setup. Then implement signup/login using bcrypt password hashing, normalized identity fields, server-side validation and generic failure messages. Never store plaintext passwords or long-lived auth tokens in localStorage. Do not migrate profile editing yet.
+
+Acceptance:
+- Signup creates a user with a password hash only.
+- Duplicate account is rejected safely.
+- Invalid login fails.
+- Login success uses the documented auth mechanism.
+- Rate limiting is applied to auth endpoints.
+- Tests cover core success/failure cases.
+
+Stop for review.
+
+PROMPT 22 — Current user, logout and protected routes
+-----------------------------------------------------
+Implement `GET /api/auth/me`, logout, authentication middleware, and a React AuthContext/service that handles the real server session. Protect frontend routes/actions for user convenience, but enforce protection on the server as the security boundary. Handle expired/missing auth gracefully. Do not use localStorage for passwords or long-lived tokens.
+
+Acceptance:
+- Logged-out users cannot access protected API actions.
+- Current user is loaded from the server.
+- Logout invalidates/clears the chosen auth state.
+- Refresh behavior is correct for the chosen approach.
+- Tests cover unauthenticated and authenticated access.
+
+Stop for review.
+
+PROMPT 23 — Profile and portfolio
+---------------------------------
+Migrate profile and portfolio features using the existing form/field inventory. Add public user profile retrieval and authenticated profile update with field allowlisting. Keep email and private account fields out of public responses. Implement portfolio visibility behavior only if agreed and tested. Do not add arbitrary social fields or profile analytics without approval.
+
+Acceptance:
+- Profile reads and edits persist.
+- Public response excludes private email/password fields.
+- User cannot edit another user's profile.
+- Portfolio displays supported saved data.
+- Validation and request states work.
+
+Stop for review.
+
+PROMPT 24 — Likes and bookmarks
+-------------------------------
+Implement like/bookmark endpoints and UI states backed by MongoDB. Enforce unique user/project pairs, authenticated actions and idempotent add/remove behavior. Counts must reflect real records. Ensure UI state refreshes correctly after API responses and handles failures honestly.
+
+Acceptance:
+- Like/bookmark add/remove works.
+- Duplicate records cannot be created.
+- Unauthenticated action is blocked.
+- Counts/state reflect persistence after refresh.
+- Tests cover duplicate and authorization cases.
+
+Stop for review.
+
+PHASE F — COMMUNITY, COLLABORATION, EVENTS
+==========================================
+
+PROMPT 25 — Communities and membership
+--------------------------------------
+Migrate the communities directory/detail views and implement only the agreed list/detail/membership behavior. Decide whether communities are seeded read-only content or user-created entities based on existing project scope. If membership is needed, enforce unique user/community membership. Avoid building an admin console.
+
+Acceptance:
+- Directory/detail routes work.
+- Membership state is persistent if membership is in scope.
+- Empty/error states work.
+- Server validates and authorizes writes.
+- Tests cover duplicate membership and unknown community.
+
+Stop for review.
+
+PROMPT 26 — Threads and replies
+-------------------------------
+Implement community threads and replies using references to Community, User and Thread. Validate body/title lengths, require authentication for writes, return safe author projections, and ensure a reply belongs to the requested thread. Do not implement real-time chat.
+
+Acceptance:
+- Thread list/create and reply list/create work.
+- Author identity is safe and consistent.
+- Invalid/missing parent resources return clear errors.
+- XSS-style input is rendered as text, not executable HTML.
+- API tests cover invalid and authorized/unauthorized cases.
+
+Stop for review.
+
+PROMPT 27 — Squads and join requests
+------------------------------------
+Migrate the squad finder and implement squad creation/listing and join requests only as supported by the current UI. Enforce ownership for squad management and prevent duplicate pending requests. Keep membership and request statuses explicit.
+
+Acceptance:
+- Squad data persists.
+- Join requests have a defined status lifecycle.
+- Duplicate pending requests are prevented.
+- Unauthorized owner-only actions are blocked.
+- Tests cover the principal cases.
+
+Stop for review.
+
+PROMPT 28 — Hackathons and registrations
+----------------------------------------
+Migrate hackathon list/detail and registration. Use real dates and a documented status calculation. Enforce unique `(hackathon, user)` registration and validate deadlines where appropriate. If current hackathon records are seed content, document how they are populated; do not invent live events.
+
+Acceptance:
+- List/detail work on direct routes.
+- Registration persists.
+- Duplicate registration is prevented.
+- Closed/invalid registrations show useful feedback.
+- Tests cover duplicate and deadline cases.
+
+Stop for review.
+
+PROMPT 29 — Codex, leaderboard and activity decision
+----------------------------------------------------
+Inspect the actual Codex, leaderboard and activity behavior and the syllabus needs. Recommend the simplest honest implementation for each. Codex can remain static content if persistence adds no value. Leaderboard needs agreed deterministic scoring and data provenance; otherwise mark as sample/demo or defer it. Activity must derive from real events, not random values. Implement only the approved choices.
+
+Acceptance:
+- No simulated content is presented as real.
+- Leaderboard rules are documented if active.
+- Codex content is navigable and accessible.
+- Activity is backed by recorded events or clearly labeled demo content.
+
+Stop for review.
+
+PHASE G — UPLOADS, TESTS, DOCUMENTATION, RELEASE
+================================================
+
+PROMPT 30 — Image uploads
+-------------------------
+Only if image upload is required by current forms: implement Multer with size/type limits, server-side validation, safe filenames/storage strategy, authenticated endpoints and useful failure states. Do not trust file extensions alone or accept arbitrary files. If persistent cloud file storage is outside scope, document the local-storage limitation rather than pretending it is production deployment-ready.
+
+Acceptance:
+- Valid image accepted within limits.
+- Wrong type and oversized files rejected.
+- Unauthenticated upload blocked.
+- File URLs/paths are handled safely.
+- Tests cover valid and rejected files.
+
+Stop for review.
+
+PROMPT 31 — Syllabus learning examples
+--------------------------------------
+Compare the course syllabus topics in the supplied project documentation with the actual implementation. Add small, runnable examples only for concepts not naturally demonstrated by the application (for example: DOM fundamentals, event loop, CommonJS vs ESM, fs/path, Buffer/streams, EventEmitter, and a minimal `node:http` server). Keep examples isolated from application runtime and add instructions to run each one. Do not add examples merely to inflate file count.
+
+Acceptance:
+- Each required lecture/topic has an application/example/documentation reference.
+- Examples run using documented commands.
+- No example exposes secrets or disrupts the app.
+- `docs/SYLLABUS-COVERAGE.md` is accurate.
+
+Stop for review.
+
+PROMPT 32 — Automated test coverage review
+------------------------------------------
+Review existing tests and add focused tests for critical user journeys and API protections. Prioritize signup/login/logout, project CRUD and ownership, search/filter/sort, GitHub import failure, likes/bookmarks, registration uniqueness, validation, unknown routes and API errors. Do not chase arbitrary coverage percentages. Run all available tests and clearly separate passing, failing and unrun tests.
+
+Acceptance:
+- Critical tests are automated where feasible.
+- Failures are fixed only within the approved scope.
+- Test command is documented.
+- No tests are claimed as passed unless executed.
+
+Stop for review.
+
+PROMPT 33 — Accessibility and responsive review
+------------------------------------------------
+Launch the application and inspect it at narrow phone, tablet and desktop widths if the environment allows. Check navigation, forms, cards, dialogs, focus visibility, semantic headings, labels, error announcements, contrast and reduced motion. Fix only confirmed issues and record any environment limitations. Do not claim visual inspection without actually viewing the running app.
+
+Acceptance:
+- No horizontal overflow in the reviewed widths, or known exceptions are documented.
+- Keyboard navigation works through key flows.
+- Inputs have accessible labels.
+- Loading/error states are understandable.
+- Reduced-motion behavior is respected where applicable.
+
+Stop for review.
+
+PROMPT 34 — Documentation, Postman and setup verification
+---------------------------------------------------------
+Create/update README, `docs/SETUP.md`, `docs/API.md`, `docs/SECURITY.md`, syllabus coverage and a Postman collection/environment template based on the code that actually exists. Include prerequisites, environment variables, database setup, client/server commands, tests, build and known limitations. Keep environment values as placeholders. Do not document unimplemented endpoints as complete.
+
+Acceptance:
+- A new teammate can follow setup steps.
+- Documentation matches actual scripts/routes/models.
+- Postman requests use safe placeholders.
+- No secrets are included.
+- Commands are tested where the environment permits.
+
+Stop for review.
+
+PROMPT 35 — Final release gate
+------------------------------
+Perform a final evidence-based review against SYSTEM-DESIGN.md and `docs/FEATURE-PARITY.md`. Run tests, production build and any documented lint/check commands. Verify key flows end to end where possible. Inspect Git diff for accidental deletions, secrets, stale demo code, and inconsistent docs. Do not add new features in this task. Produce a release report with PASS/FAIL/NOT RUN for every release acceptance item and list remaining limitations honestly.
+
+Release acceptance includes:
+- Core project discovery/detail/submission flow works.
+- Data persists in MongoDB where intended.
+- Auth/password hashing/server-side ownership are enforced.
+- Likes/bookmarks/registrations prevent duplicates.
+- API errors and missing routes behave correctly.
+- No plaintext passwords or committed secrets.
+- Tests/build pass or blockers are clearly listed.
+- Responsive/accessibility review is documented.
+- Setup/API/security/syllabus docs match the code.
+- Demo-only metrics/activity are explicitly labeled or removed.
+
+Stop and wait for the user's final approval. Do not claim production readiness if any critical release gate is unverified or failing.
+
+END OF TASK FILE
+================

@@ -1,0 +1,47 @@
+/* =========================================================
+   CODEX PAGE
+   Loaded after css/style.css — only styles specific to
+   this page live here.
+   ========================================================= */
+
+/* ---- The Codex ---- */
+.codex-locked-panel {
+  background: radial-gradient(circle at 50% 0%, var(--accent-soft), transparent 65%);
+}
+.codex-entry { overflow: hidden; margin-bottom: 14px; }
+.codex-entry-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+}
+.codex-entry-toggle:hover { background: var(--surface-hover); }
+.codex-entry-body {
+  padding: 4px 20px 20px 20px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.codex-field { padding-top: 12px; }
+.codex-field-label {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-tertiary);
+  margin-bottom: 5px;
+}
+.codex-field p { font-size: 13.5px; color: var(--text-secondary); }
+.codex-field-lesson {
+  border-left: 2px solid var(--accent);
+  padding-left: 14px;
+  margin-left: -2px;
+}
+.codex-field-lesson p { color: var(--text-primary); font-weight: 500; }

@@ -1,0 +1,24 @@
+/* =========================================================
+   SETTINGS PAGE
+   Loaded after css/style.css — only styles specific to
+   this page live here.
+   ========================================================= */
+
+/* settings swatches */
+.swatch {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.2s var(--ease-soft), border-color 0.2s;
+  position: relative;
+}
+.swatch.active-swatch { border-color: var(--text-primary); transform: scale(1.1); }
+.swatch.active-swatch::after { content: "✓"; position: absolute; inset: 0; display: grid; place-items: center; color: #07080c; font-weight: 700; }
+.swatch.locked-swatch { cursor: pointer; position: relative; }
+.swatch.locked-swatch::after { content: "🔒"; position: absolute; inset: 0; display: grid; place-items: center; font-size: 13px; background: rgba(0,0,0,0.45); border-radius: 50%; }
+.settings-row { display: flex; justify-content: space-between; align-items: center; padding: 18px 4px; border-bottom: 1px solid var(--border); gap: 20px; }
+.settings-row:last-child { border-bottom: none; }
+.settings-row-title { font-weight: 600; font-size: 14.5px; }
+.settings-row-desc { font-size: 12.5px; color: var(--text-tertiary); margin-top: 2px; }
+

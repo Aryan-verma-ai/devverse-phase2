@@ -1,0 +1,9 @@
+/* =========================================================
+   PROFILE PAGE
+   Loaded after css/style.css — only styles specific to
+   this page live here.
+   ========================================================= */
+
+/* heatmap */
+.heatmap { display: grid; grid-template-columns: repeat(26, 1fr); gap: 3px; }
+.heatmap i { display: block; aspect-ratio: 1; border-radius: 2px; background: var(--surface); }

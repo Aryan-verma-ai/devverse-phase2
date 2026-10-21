@@ -1,0 +1,13 @@
+/* =========================================================
+   PROJECT DETAIL PAGE
+   Loaded after css/style.css — only styles specific to
+   this page live here.
+   ========================================================= */
+
+.project-delete-btn {
+  border-color: var(--coral) !important;
+  color: var(--coral) !important;
+}
+.project-delete-btn:hover {
+  background: var(--coral) !important; color: var(--bg) !important;
+}

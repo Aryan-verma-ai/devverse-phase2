@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevVerse — Where Builders Become Legends</title>
+<meta name="description" content="DevVerse is the operating system for developers: explore projects, join hackathons, build your portfolio, and climb the leaderboard.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<script>(function(){try{var g=JSON.parse(localStorage.getItem('devverse:v1')||'{}');var sess=g.auth&&g.auth.session;var uk='devverse:v1'+(sess?':user:'+sess:':guest');var s=(JSON.parse(localStorage.getItem(uk)||'{}').settings)||{};document.documentElement.setAttribute('data-theme',s.theme||'dark');document.documentElement.setAttribute('data-accent',s.accent||'violet');document.documentElement.setAttribute('data-motion',s.motion||'on');}catch(e){}})();</script>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='1' y1='0' y2='1'%3E%3Cstop offset='0' stop-color='%237c6fff'/%3E%3Cstop offset='1' stop-color='%234fe3c1'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='22' fill='url(%23g)'/%3E%3Ctext x='50' y='67' font-size='46' font-family='Arial' font-weight='800' text-anchor='middle' fill='%2307080c'%3EDV%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/pages/home.css">
+</head>
+<body data-page="home">
+
+<div id="dv-chrome"></div>
+
+<main>
+  <!-- ================= HERO ================= -->
+  <section class="hero wrap">
+    <div class="hero-kicker"><span class="dot"></span> SYSTEM STATUS: 42,800 builders online</div>
+    <h1>
+      <span class="line"><span>Where builders</span></span>
+      <span class="line"><span>become <span class="grad-text">legends.</span></span></span>
+    </h1>
+    <p class="hero-sub">DevVerse is the operating system for developers — ship projects, join hackathons, build your portfolio, and climb the leaderboard, all in one place.</p>
+    <div class="hero-cta">
+      <a href="explore.html" class="btn btn-primary">Explore Projects</a>
+      <a href="portfolio.html" class="btn btn-ghost">Build Your Portfolio</a>
+    </div>
+    <div class="hero-terminal glass">
+      <div class="terminal-bar"><span></span><span></span><span></span></div>
+      <div class="terminal-body"><span class="prompt">$</span> <span id="terminal-line"></span><span class="terminal-caret"></span></div>
+    </div>
+
+    <div class="hero-robot" aria-hidden="true">
+      <img src="assets/img/hero-robot-dark.png" alt="" class="hero-robot-img hero-robot-img-dark">
+      <img src="assets/img/hero-robot-light.png" alt="" class="hero-robot-img hero-robot-img-light">
+    </div>
+
+    <div class="hero-float-cards">
+      <div class="float-card glass" style="top:12%; right:8%; animation-delay:0s;">
+        <img src="https://api.dicebear.com/7.x/notionists/svg?seed=lumencross&backgroundColor=transparent" alt="">
+        <div><div class="fc-title">Voxel Garden</div><div class="fc-sub">↑ 2,043 likes</div></div>
+      </div>
+      <div class="float-card glass" style="top:38%; right:1%; animation-delay:1.4s;">
+        <img src="https://api.dicebear.com/7.x/notionists/svg?seed=senapark&backgroundColor=transparent" alt="">
+        <div><div class="fc-title">Sena shipped Mural</div><div class="fc-sub">3m ago</div></div>
+      </div>
+      <div class="float-card glass" style="top:70%; right:1%; animation-delay:2.6s;">
+        <img src="https://api.dicebear.com/7.x/notionists/svg?seed=kmori&backgroundColor=transparent" alt="">
+        <div><div class="fc-title">Aurora Hacks</div><div class="fc-sub">$25,000 pool</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= STATS ================= -->
+  <section class="wrap section-tight">
+    <div class="stat-strip reveal">
+      <div class="stat-cell"><div class="stat-num" data-count="42800">0</div><div class="stat-label">Active builders</div></div>
+      <div class="stat-cell"><div class="stat-num" data-count="18400">0</div><div class="stat-label">Projects shipped</div></div>
+      <div class="stat-cell"><div class="stat-num" data-count="640">0</div><div class="stat-label">Hackathons hosted</div></div>
+      <div class="stat-cell"><div class="stat-num" data-count="2.4" data-suffix="M">0</div><div class="stat-label">Lines committed / wk</div></div>
+    </div>
+  </section>
+
+  <!-- ================= TRENDING PROJECTS ================= -->
+  <section class="wrap section">
+    <div class="section-head">
+      <div>
+        <div class="eyebrow">Trending this week</div>
+        <h2>Projects everyone's shipping</h2>
+      </div>
+      <a href="explore.html" class="btn btn-outline btn-sm">View all projects</a>
+    </div>
+    <div class="grid grid-3" id="trending-projects"></div>
+  </section>
+
+  <!-- ================= CATEGORIES ================= -->
+  <section class="wrap section-tight">
+    <div class="section-head"><div><div class="eyebrow">Browse by discipline</div><h2>Categories</h2></div></div>
+    <div class="grid grid-4" id="category-tiles"></div>
+  </section>
+
+  <!-- ================= TOP DEVELOPERS + LIVE ACTIVITY ================= -->
+  <section class="wrap section">
+    <div class="grid" style="grid-template-columns: 1.5fr 1fr; align-items:start;">
+      <div>
+        <div class="section-head"><div><div class="eyebrow">Ranked this month</div><h2>Top developers</h2></div></div>
+        <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));" id="top-devs"></div>
+      </div>
+      <div>
+        <div class="section-head" style="margin-bottom:24px;"><div><div class="eyebrow">Live</div><h2 style="font-size:26px;">Activity feed</h2></div></div>
+        <div class="glass feed" id="activity-feed" style="padding:6px 18px; max-height:420px; overflow-y:auto;"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FEATURED HACKATHONS ================= -->
+  <section class="wrap section-tight">
+    <div class="section-head">
+      <div><div class="eyebrow">Compete &amp; win</div><h2>Featured hackathons</h2></div>
+      <a href="hackathons.html" class="btn btn-outline btn-sm">All hackathons</a>
+    </div>
+    <div class="grid grid-3" id="hackathons-preview"></div>
+  </section>
+
+  <!-- ================= TECH SHOWCASE ================= -->
+  <section class="wrap section-tight">
+    <div class="section-head"><div><div class="eyebrow">The stack of DevVerse</div><h2>Trending technologies</h2></div></div>
+    <div class="grid grid-4" id="tech-showcase"></div>
+  </section>
+
+  <!-- ================= GITHUB LIVE (Fetch API demo) ================= -->
+  <section class="wrap section-tight">
+    <div class="section-head"><div><div class="eyebrow">Live from GitHub</div><h2>What the world is starring right now</h2></div></div>
+    <div class="grid grid-3" id="gh-trending">
+      <div class="skel" style="height:70px;"></div><div class="skel" style="height:70px;"></div><div class="skel" style="height:70px;"></div>
+    </div>
+  </section>
+
+  <!-- ================= COMMUNITY HIGHLIGHTS ================= -->
+  <section class="wrap section-tight">
+    <div class="section-head"><div><div class="eyebrow">Find your people</div><h2>Community highlights</h2></div>
+      <a href="communities.html" class="btn btn-outline btn-sm">All communities</a>
+    </div>
+    <div class="grid grid-3" id="community-highlights"></div>
+  </section>
+
+  <!-- ================= CTA ================= -->
+  <section class="wrap section">
+    <div class="glass reveal" style="padding:60px 40px; text-align:center; border-radius:var(--radius-xl); background:radial-gradient(circle at 50% 0%, var(--accent-soft), transparent 60%);">
+      <h2>Your legend starts with one commit.</h2>
+      <p class="lede" style="margin:14px auto 0;">Build your portfolio, join a hackathon, or just explore what other developers are shipping today.</p>
+      <div class="hero-cta" style="justify-content:center; margin-top:30px;">
+        <a href="portfolio.html" class="btn btn-primary">Start building</a>
+        <a href="squads.html" class="btn btn-ghost">Find your squad</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="dv-footer"></div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script src="js/pages/home.js"></script>
+</body>
+</html>

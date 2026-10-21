@@ -1,0 +1,16 @@
+/* =========================================================
+   COMMUNITY THREAD PAGE
+   Loaded after css/style.css — only styles specific to
+   this page live here.
+   ========================================================= */
+
+/* ---- Forum (Community threads) ---- */
+.thread-card { overflow: hidden; }
+.thread-toggle:hover { background: var(--surface-hover) !important; }
+.thread-toggle svg { flex-shrink: 0; }
+.thread-body { border-top: 1px solid var(--border); }
+.reply-form { flex-wrap: wrap; }
+.reply-form .reply-input { min-width: 180px; }
+@media (max-width: 560px) {
+  .thread-body { padding-left: 20px !important; }
+}

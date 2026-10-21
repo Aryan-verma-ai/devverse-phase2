@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign Up — DevVerse</title>
+<script>(function(){try{var g=JSON.parse(localStorage.getItem('devverse:v1')||'{}');var sess=g.auth&&g.auth.session;var uk='devverse:v1'+(sess?':user:'+sess:':guest');var s=(JSON.parse(localStorage.getItem(uk)||'{}').settings)||{};document.documentElement.setAttribute('data-theme',s.theme||'dark');document.documentElement.setAttribute('data-accent',s.accent||'violet');document.documentElement.setAttribute('data-motion',s.motion||'on');}catch(e){}})();</script>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' x2='1' y1='0' y2='1'%3E%3Cstop offset='0' stop-color='%237c6fff'/%3E%3Cstop offset='1' stop-color='%234fe3c1'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='22' fill='url(%23g)'/%3E%3Ctext x='50' y='67' font-size='46' font-family='Arial' font-weight='800' text-anchor='middle' fill='%2307080c'%3EDV%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/pages/signup.css">
+</head>
+<body data-page="signup">
+
+<div id="dv-chrome"></div>
+
+<main>
+  <section class="wrap" style="padding-top:28px; padding-bottom:0;">
+    <div class="signup2-grid signup2-card-outer">
+
+      <div class="signup2-left">
+        <div class="signup2-text">
+          <h1 class="signup2-title">Create your account.<br>Build the <span class="signup2-accent">future.</span> <span class="signup2-bolt">⚡</span></h1>
+          <p class="signup2-sub">Join DevVerse and connect with developers, build amazing projects and grow together.</p>
+          <span class="signup2-rule"></span>
+
+          <div class="signup2-timeline">
+            <div class="signup2-step">
+              <span class="signup2-step-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></span>
+              <div>
+                <h4>Build &amp; Showcase</h4>
+                <p>Create projects and showcase your developer portfolio.</p>
+              </div>
+            </div>
+            <div class="signup2-step">
+              <span class="signup2-step-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span>
+              <div>
+                <h4>Connect &amp; Collaborate</h4>
+                <p>Join communities, squads and work on amazing ideas.</p>
+              </div>
+            </div>
+            <div class="signup2-step">
+              <span class="signup2-step-icon"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8M12 17v4M7 4h10v4a5 5 0 01-10 0V4z"/><path d="M5 4H3v2a4 4 0 004 4M19 4h2v2a4 4 0 01-4 4"/></svg></span>
+              <div>
+                <h4>Learn &amp; Earn</h4>
+                <p>Participate in hackathons and earn points &amp; rewards.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="signup2-testimonial">
+            <p>&ldquo;DevVerse is my go-to place to learn, build and level up.&rdquo;</p>
+            <div class="signup2-testimonial-foot">
+              <span class="signup2-avatar-stack">
+                <span class="signup2-avatar" style="--i:0;">A</span>
+                <span class="signup2-avatar" style="--i:1;">K</span>
+                <span class="signup2-avatar" style="--i:2;">S</span>
+              </span>
+              <span>10K+ developers already joined</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="signup2-robot-wrap" aria-hidden="true">
+          <span class="signup2-robot-dot" style="--i:0;"></span>
+          <span class="signup2-robot-dot" style="--i:1;"></span>
+          <span class="signup2-robot-dot" style="--i:2;"></span>
+          <img src="assets/img/robot-podium.png" class="signup2-robot" alt="">
+        </div>
+      </div>
+
+      <div class="signup2-card">
+        <div class="eyebrow">Join DevVerse</div>
+        <h2 class="signup2-form-title">Create your account</h2>
+        <p class="signup2-form-sub">Let's get you started! 🚀</p>
+
+        <div id="signup-existing-notice" class="signup2-error-notice" style="display:none;">
+          <p>This browser already has an account. Creating a new one will <b>erase everything</b> tied to it on this device — points, likes, bookmarks, portfolio, squads, all of it. If you meant to continue as that account, <a href="login.html" id="signup-existing-login-link" style="color:var(--coral); text-decoration:underline;">sign in instead</a>.</p>
+        </div>
+
+        <form id="signup-form" novalidate>
+          <div class="field">
+            <label for="signup-name">Full name</label>
+            <div class="input-icon-wrap-r">
+              <input id="signup-name" name="name" autocomplete="name" required minlength="2" data-error-required="Tell us what to call you." data-error-minlength="Name should be at least 2 characters." placeholder="e.g. Neelabh Verma">
+              <span class="input-icon-r"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="signup-username">Username</label>
+            <div class="input-icon-wrap-r">
+              <input id="signup-username" name="username" autocomplete="username" required minlength="3" maxlength="20" pattern="[a-zA-Z0-9_\-]+" data-error-required="Pick a unique username." data-error-minlength="Username must be at least 3 characters." data-error-pattern="Only letters, numbers, hyphens and underscores." placeholder="e.g. neelabh16">
+              <span class="input-icon-r">@</span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="signup-email">Email</label>
+            <div class="input-icon-wrap-r">
+              <input id="signup-email" name="email" type="email" autocomplete="email" required data-error-required="An email is required to sign in later." placeholder="e.g. neelabh@example.com">
+              <span class="input-icon-r"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg></span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="signup-password">Password</label>
+            <div class="password-wrap">
+              <input id="signup-password" name="password" type="password" autocomplete="new-password" required minlength="7" data-error-required="Choose a password." data-error-minlength="Use at least 7 characters." placeholder="Create a strong password">
+              <button type="button" class="password-toggle" id="signup-password-toggle" tabindex="-1" aria-label="Show password">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="capslock-warning" id="signup-capslock-warning">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l9 9h-6v9H9v-9H3z"/></svg>
+            Caps Lock is on
+          </div>
+          <div class="field">
+            <label for="signup-confirm">Confirm password</label>
+            <div class="password-wrap">
+              <input id="signup-confirm" name="confirm" type="password" autocomplete="new-password" required data-error-required="Confirm your password." placeholder="Confirm your password">
+              <button type="button" class="password-toggle" id="signup-confirm-toggle" tabindex="-1" aria-label="Show password">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <label class="signup2-terms">
+            <input type="checkbox" id="signup-terms" checked>
+            <span>I agree to the <a href="#" onclick="event.preventDefault(); dvToast('This is a demo — no real Terms of Service to show.');">Terms of Service</a> and <a href="#" onclick="event.preventDefault(); dvToast('This is a demo — no real Privacy Policy to show.');">Privacy Policy</a>.</span>
+          </label>
+
+          <button class="btn btn-primary signup2-submit" type="submit">
+            Create account
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+        </form>
+
+        <div class="signup2-divider"><span>or sign up with</span></div>
+
+        <div class="signup2-social">
+          <button type="button" class="signup2-social-btn" onclick="dvToast('Social sign-up isn\'t wired up in this demo — use the form above.');">
+            <svg width="17" height="17" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.04 12.27c0-.82-.07-1.42-.22-2.05H12.24v3.72h6.17c-.12 1.02-.8 2.57-2.31 3.6l-.02.14 3.35 2.6.23.02c2.13-1.97 3.38-4.86 3.38-8.03z"/><path fill="#34A853" d="M12.24 23.5c3.05 0 5.6-1 7.47-2.73l-3.56-2.76c-.95.66-2.23 1.13-3.91 1.13-2.99 0-5.53-1.98-6.44-4.7l-.13.01-3.48 2.7-.05.13c1.86 3.7 5.68 6.22 10.1 6.22z"/><path fill="#FBBC05" d="M5.8 14.44a6.9 6.9 0 01-.37-2.2c0-.77.14-1.51.36-2.2L5.78 9.9 2.26 7.15l-.12.06A11.5 11.5 0 000.75 12.24c0 1.85.44 3.6 1.39 5.13l3.66-2.93z"/><path fill="#EA4335" d="M12.24 5.34c2.12 0 3.55.92 4.37 1.68l3.19-3.12C17.83 2.07 15.29 1 12.24 1 7.82 1 3.99 3.52 2.14 7.21l3.65 2.94c.92-2.73 3.46-4.81 6.45-4.81z"/></svg>
+            Google
+          </button>
+          <button type="button" class="signup2-social-btn" onclick="dvToast('Social sign-up isn\'t wired up in this demo — use the form above.');">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.57.1.78-.25.78-.55 0-.27-.01-1-.02-1.96-3.2.7-3.88-1.54-3.88-1.54-.52-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.29 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.05 11.05 0 015.79 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.12 3.05.74.8 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14 0 1.55-.01 2.79-.01 3.17 0 .3.2.66.79.55A10.51 10.51 0 0023.5 12c0-6.27-5.23-11.5-11.5-11.5z"/></svg>
+            GitHub
+          </button>
+          <button type="button" class="signup2-social-btn" onclick="dvToast('Social sign-up isn\'t wired up in this demo — use the form above.');">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="#5865F2"><path d="M20.32 4.37a19.8 19.8 0 00-4.89-1.52.07.07 0 00-.08.04c-.21.38-.45.87-.61 1.26a18.3 18.3 0 00-5.48 0 12.6 12.6 0 00-.63-1.26.08.08 0 00-.08-.04c-1.7.3-3.36.8-4.89 1.52a.07.07 0 00-.03.03C.6 9.05-.36 13.6.11 18.09a.08.08 0 00.03.06 19.9 19.9 0 006 3.03.08.08 0 00.08-.03c.46-.63.87-1.3 1.23-2a.08.08 0 00-.04-.11 13.1 13.1 0 01-1.87-.9.08.08 0 01-.01-.13c.13-.09.25-.19.37-.28a.07.07 0 01.08-.01c3.93 1.8 8.18 1.8 12.06 0a.07.07 0 01.08.01c.12.1.24.19.37.28a.08.08 0 010 .13c-.6.35-1.22.65-1.87.9a.08.08 0 00-.04.11c.36.7.78 1.37 1.23 2a.08.08 0 00.08.03 19.9 19.9 0 006-3.03.08.08 0 00.03-.06c.55-5.19-.94-9.73-3.97-13.69a.06.06 0 00-.03-.03zM8.02 15.33c-1.18 0-2.16-1.09-2.16-2.42 0-1.34.96-2.42 2.16-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.33-.96 2.42-2.16 2.42zm7.97 0c-1.18 0-2.16-1.09-2.16-2.42 0-1.34.96-2.42 2.16-2.42 1.21 0 2.18 1.1 2.16 2.42 0 1.33-.95 2.42-2.16 2.42z"/></svg>
+            Discord
+          </button>
+        </div>
+
+        <p class="signup2-signin-link">Already have an account? <a href="login.html" id="signup-to-login-link">Sign in</a></p>
+      </div>
+    </div>
+
+    <div class="signup2-trust">
+      <span>Trusted by developers worldwide</span>
+      <span class="signup2-trust-divider"></span>
+      <div class="signup2-trust-logos">
+        <span class="signup2-trust-logo">Google</span>
+        <span class="signup2-trust-logo signup2-trust-ms"><svg width="14" height="14" viewBox="0 0 24 24"><rect x="1" y="1" width="10" height="10" fill="#F35325"/><rect x="13" y="1" width="10" height="10" fill="#81BC06"/><rect x="1" y="13" width="10" height="10" fill="#05A6F0"/><rect x="13" y="13" width="10" height="10" fill="#FFBA08"/></svg>Microsoft</span>
+        <span class="signup2-trust-logo">GitHub</span>
+        <span class="signup2-trust-logo signup2-trust-stripe">stripe</span>
+        <span class="signup2-trust-logo signup2-trust-vercel">▲ vercel</span>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="dv-footer"></div>
+
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+<script src="js/pages/signup.js"></script>
+</body>
+</html>
