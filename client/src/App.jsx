@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import AppShell from './components/layout/AppShell';
 import PlaceholderPage from './pages/PlaceholderPage';
+import ExplorePage from './pages/ExplorePage';
 
 export default function App() {
   return (
@@ -27,21 +28,7 @@ export default function App() {
           />
 
           {/* 2. Explore Projects */}
-          <Route
-            path="/explore"
-            element={
-              <PlaceholderPage
-                title="Explore Projects"
-                eyebrow="The Catalog"
-                tier="Tier 1"
-                description="Search, filter, and sort through everything the DevVerse community is building."
-                quickLinks={[
-                  { path: '/projects/p1', label: 'Sample Project Detail (p1)' },
-                  { path: '/submit-project', label: '+ Submit Project' },
-                ]}
-              />
-            }
-          />
+          <Route path="/explore" element={<ExplorePage />} />
 
           {/* 3. Project Detail */}
           <Route
