@@ -24,6 +24,7 @@
 import express from 'express';
 import cors from 'cors';
 import env from './config/env.js';
+import { getDatabaseStatus } from './config/database.js';
 import requestLogger from './middleware/requestLogger.js';
 import notFound from './middleware/notFound.js';
 import errorHandler from './middleware/errorHandler.js';
@@ -83,6 +84,7 @@ app.get('/api/health', (_req, res) => {
     status: 'ok',
     service: 'devverse-api',
     environment: env.NODE_ENV,
+    database: getDatabaseStatus(),
     timestamp: new Date().toISOString(),
   });
 });

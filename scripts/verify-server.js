@@ -54,6 +54,7 @@ test('server/package.json exists', () => assert(fileExists('server/package.json'
 test('server/index.js exists', () => assert(fileExists('server/index.js')));
 test('server/app.js exists', () => assert(fileExists('server/app.js')));
 test('server/config/env.js exists', () => assert(fileExists('server/config/env.js')));
+test('server/config/database.js exists', () => assert(fileExists('server/config/database.js')));
 test('.env.example exists at repo root', () => assert(fileExists('.env.example')));
 test('.gitignore exists at repo root', () => assert(fileExists('.gitignore')));
 
@@ -243,7 +244,12 @@ test('.gitignore: ignores coverage output', () => assert(gitignore.includes('cov
 // Security: no real secrets in tracked files
 // ---------------------------------------------------------------------------
 
-const filesToScan = ['server/app.js', 'server/index.js', 'server/config/env.js'];
+const filesToScan = [
+  'server/app.js',
+  'server/index.js',
+  'server/config/env.js',
+  'server/config/database.js',
+];
 const suspiciousPatterns = [
   /mongodb\+srv:\/\/[^<\s]+:[^<\s]+@/i,   // real Atlas URI
   /password\s*[:=]\s*['"][^'"]{4,}/i,       // hardcoded password

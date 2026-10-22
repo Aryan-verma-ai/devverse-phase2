@@ -17,13 +17,28 @@
 
 import env from './config/env.js';
 import app from './app.js';
+import { connectDatabase, disconnectDatabase } from './config/database.js';
 
 // ---------------------------------------------------------------------------
-// Start HTTP server
+// Start HTTP server & initialize database connection
 // ---------------------------------------------------------------------------
 
-const server = app.listen(env.PORT, () => {
-  console.log(`
+let server;
+
+async function startServer() {
+  try {
+    // Attempt database connection (governed by startup policy in database.js)
+    await connectDatabase();
+  } catch (err) {
+    if (env.NODE_ENV === 'production') {
+      console.error('[DevVerse] Fatal: Could not establish database connection in production. Exiting.');
+      process.exit(1);
+    }
+    console.warn('[DevVerse] Running server with database disconnected.');
+  }
+
+  server = app.listen(env.PORT, () => {
+    console.log(`
   ╔════════════════════════════════════════════╗
   ║           DevVerse API Server              ║
   ╠════════════════════════════════════════════╣
@@ -31,27 +46,39 @@ const server = app.listen(env.PORT, () => {
   ║  Port        : ${String(env.PORT).padEnd(26)}║
   ║  Health      : http://localhost:${env.PORT}/api/health  ║
   ╚════════════════════════════════════════════╝
-  `);
-});
+    `);
+  });
+}
+
+startServer();
 
 // ---------------------------------------------------------------------------
 // Graceful shutdown
 // On SIGTERM (e.g. from process manager) or SIGINT (Ctrl-C in terminal),
-// stop accepting new connections and allow in-flight requests to finish
-// before exiting. In Prompt 17, the database connection will also be closed
-// here before the process exits.
+// stop accepting new connections, close database connection, and exit safely.
 // ---------------------------------------------------------------------------
 
-function shutdown(signal) {
+async function shutdown(signal) {
   console.log(`\n[DevVerse] Received ${signal}. Shutting down gracefully…`);
-  server.close((err) => {
-    if (err) {
-      console.error('[DevVerse] Error during shutdown:', err.message);
-      process.exit(1);
-    }
-    console.log('[DevVerse] HTTP server closed. Bye.');
+
+  try {
+    await disconnectDatabase();
+  } catch (err) {
+    console.error('[DevVerse] Error closing database connection:', err.message);
+  }
+
+  if (server) {
+    server.close((err) => {
+      if (err) {
+        console.error('[DevVerse] Error during server close:', err.message);
+        process.exit(1);
+      }
+      console.log('[DevVerse] HTTP server closed. Bye.');
+      process.exit(0);
+    });
+  } else {
     process.exit(0);
-  });
+  }
 
   // Force-exit after 10 s if graceful close stalls
   setTimeout(() => {
