@@ -55,6 +55,9 @@ test('server/index.js exists', () => assert(fileExists('server/index.js')));
 test('server/app.js exists', () => assert(fileExists('server/app.js')));
 test('server/config/env.js exists', () => assert(fileExists('server/config/env.js')));
 test('server/config/database.js exists', () => assert(fileExists('server/config/database.js')));
+test('server/models/User.js exists', () => assert(fileExists('server/models/User.js')));
+test('server/models/Project.js exists', () => assert(fileExists('server/models/Project.js')));
+test('server/models/index.js exists', () => assert(fileExists('server/models/index.js')));
 test('.env.example exists at repo root', () => assert(fileExists('.env.example')));
 test('.gitignore exists at repo root', () => assert(fileExists('.gitignore')));
 
@@ -249,6 +252,8 @@ const filesToScan = [
   'server/index.js',
   'server/config/env.js',
   'server/config/database.js',
+  'server/models/User.js',
+  'server/models/Project.js',
 ];
 const suspiciousPatterns = [
   /mongodb\+srv:\/\/[^<\s]+:[^<\s]+@/i,   // real Atlas URI
