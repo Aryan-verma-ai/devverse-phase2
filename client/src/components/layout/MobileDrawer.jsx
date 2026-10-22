@@ -1,8 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { NAV_ITEMS } from './navItems';
+import { useAuth } from '../../context/AuthContext';
 
 export default function MobileDrawer({ open, onClose }) {
+  const { user, isAuthenticated, logout } = useAuth();
   const drawerRef = useRef(null);
 
   // Close on Escape key
@@ -100,12 +102,34 @@ export default function MobileDrawer({ open, onClose }) {
         </nav>
 
         <div className="mobile-menu-footer">
-          <Link to="/login" onClick={onClose} className="btn btn-ghost" style={{ width: '100%' }}>
-            Sign In
-          </Link>
-          <Link to="/signup" onClick={onClose} className="btn btn-primary" style={{ width: '100%' }}>
-            Create Account
-          </Link>
+          {isAuthenticated ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', width: '100%' }}>
+              <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                Signed in as <strong style={{ color: 'var(--text-primary)' }}>{user?.displayName || user?.username}</strong>
+                <span style={{ display: 'block', fontSize: '11.5px', color: 'var(--text-tertiary)' }}>@{user?.username}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  logout();
+                  onClose();
+                }}
+                className="btn btn-outline"
+                style={{ width: '100%' }}
+              >
+                Sign Out
+              </button>
+            </div>
+          ) : (
+            <>
+              <Link to="/login" onClick={onClose} className="btn btn-ghost" style={{ width: '100%' }}>
+                Sign In
+              </Link>
+              <Link to="/signup" onClick={onClose} className="btn btn-primary" style={{ width: '100%' }}>
+                Create Account
+              </Link>
+            </>
+          )}
         </div>
       </aside>
     </>

@@ -136,7 +136,7 @@ await testAsync('POST /api/projects rejects missing title with 422 VALIDATION_ER
   const res = await api('POST', '/api/projects', {
     description: 'Valid description that has sufficient length of more than twenty characters.',
     category: 'Backend',
-  });
+  }, { 'x-dev-user-id': ownerUser._id.toString() });
 
   assertEqual(res.status, 422);
   assertEqual(res.body.code, 'VALIDATION_ERROR');
@@ -148,7 +148,7 @@ await testAsync('POST /api/projects rejects description < 20 chars with 422', as
     title: 'Short Description App',
     description: 'Too short',
     category: 'Backend',
-  });
+  }, { 'x-dev-user-id': ownerUser._id.toString() });
 
   assertEqual(res.status, 422);
   assertEqual(res.body.code, 'VALIDATION_ERROR');
@@ -160,7 +160,7 @@ await testAsync('POST /api/projects rejects invalid category enum with 422', asy
     title: 'Valid Project Title',
     description: 'Valid description that has sufficient length of more than twenty characters.',
     category: 'InvalidCategoryName',
-  });
+  }, { 'x-dev-user-id': ownerUser._id.toString() });
 
   assertEqual(res.status, 422);
   assertEqual(res.body.code, 'VALIDATION_ERROR');
@@ -173,7 +173,7 @@ await testAsync('POST /api/projects rejects invalid URL protocol with 422', asyn
     description: 'Valid description that has sufficient length of more than twenty characters.',
     category: 'Systems',
     githubUrl: 'ftp://ftp.example.com/repo',
-  });
+  }, { 'x-dev-user-id': ownerUser._id.toString() });
 
   assertEqual(res.status, 422);
   assertEqual(res.body.code, 'VALIDATION_ERROR');

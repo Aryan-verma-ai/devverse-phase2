@@ -13,7 +13,7 @@
 
 import { Router } from 'express';
 import projectController from '../controllers/projectController.js';
-import devAuthGuard from '../middleware/devAuthGuard.js';
+import { requireAuth } from '../middleware/auth.js';
 import {
   validateCreateProject,
   validateUpdateProject,
@@ -25,9 +25,9 @@ const router = Router();
 router.get('/', projectController.list);
 router.get('/:id', projectController.getById);
 
-// Protected write endpoints (guarded by devAuthGuard until full auth is wired in Prompt 21)
-router.post('/', devAuthGuard, validateCreateProject, projectController.create);
-router.patch('/:id', devAuthGuard, validateUpdateProject, projectController.update);
-router.delete('/:id', devAuthGuard, projectController.remove);
+// Protected write endpoints (enforce authentication on server as security boundary)
+router.post('/', requireAuth, validateCreateProject, projectController.create);
+router.patch('/:id', requireAuth, validateUpdateProject, projectController.update);
+router.delete('/:id', requireAuth, projectController.remove);
 
 export default router;

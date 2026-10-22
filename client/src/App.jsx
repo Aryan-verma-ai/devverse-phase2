@@ -1,42 +1,54 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import AppShell from './components/layout/AppShell';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 import PlaceholderPage from './pages/PlaceholderPage';
 import ExplorePage from './pages/ExplorePage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
 import SubmitProjectPage from './pages/SubmitProjectPage';
+import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
 
 export default function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route element={<AppShell />}>
-          {/* 1. Home Dashboard */}
-          <Route
-            path="/"
-            element={
-              <PlaceholderPage
-                title="Where Builders Become Legends"
-                eyebrow="Home Dashboard"
-                tier="Tier 1 / Tier 4"
-                description="The unified space for developers — discover projects, showcase work, join hackathons, and climb the leaderboard."
-                quickLinks={[
-                  { path: '/explore', label: 'Explore Projects' },
-                  { path: '/hackathons', label: 'Hackathons' },
-                  { path: '/portfolio', label: 'Build Portfolio' },
-                ]}
-              />
-            }
-          />
+      <AuthProvider>
+        <Routes>
+          <Route element={<AppShell />}>
+            {/* 1. Home Dashboard */}
+            <Route
+              path="/"
+              element={
+                <PlaceholderPage
+                  title="Where Builders Become Legends"
+                  eyebrow="Home Dashboard"
+                  tier="Tier 1 / Tier 4"
+                  description="The unified space for developers — discover projects, showcase work, join hackathons, and climb the leaderboard."
+                  quickLinks={[
+                    { path: '/explore', label: 'Explore Projects' },
+                    { path: '/hackathons', label: 'Hackathons' },
+                    { path: '/portfolio', label: 'Build Portfolio' },
+                  ]}
+                />
+              }
+            />
 
-          {/* 2. Explore Projects */}
-          <Route path="/explore" element={<ExplorePage />} />
+            {/* 2. Explore Projects */}
+            <Route path="/explore" element={<ExplorePage />} />
 
-          {/* 3. Project Detail */}
-          <Route path="/projects/:id" element={<ProjectDetailPage />} />
+            {/* 3. Project Detail */}
+            <Route path="/projects/:id" element={<ProjectDetailPage />} />
 
-          {/* 4. Submit Project */}
-          <Route path="/submit-project" element={<SubmitProjectPage />} />
+            {/* 4. Submit Project (Protected Action) */}
+            <Route
+              path="/submit-project"
+              element={
+                <ProtectedRoute>
+                  <SubmitProjectPage />
+                </ProtectedRoute>
+              }
+            />
 
           {/* 5. Communities Directory */}
           <Route
@@ -122,37 +134,41 @@ export default function App() {
             }
           />
 
-          {/* 10. Portfolio Builder & Viewer */}
+          {/* 10. Portfolio Builder & Viewer (Protected) */}
           <Route
             path="/portfolio"
             element={
-              <PlaceholderPage
-                title="Portfolio Builder"
-                eyebrow="Builder Showcase"
-                tier="Tier 2"
-                description="Interactive portfolio editor with live card preview, skill chips, links, and public shareable URLs."
-                quickLinks={[
-                  { path: '/profile', label: 'Your Profile' },
-                  { path: '/settings', label: 'Settings' },
-                ]}
-              />
+              <ProtectedRoute>
+                <PlaceholderPage
+                  title="Portfolio Builder"
+                  eyebrow="Builder Showcase"
+                  tier="Tier 2"
+                  description="Interactive portfolio editor with live card preview, skill chips, links, and public shareable URLs."
+                  quickLinks={[
+                    { path: '/profile', label: 'Your Profile' },
+                    { path: '/settings', label: 'Settings' },
+                  ]}
+                />
+              </ProtectedRoute>
             }
           />
 
-          {/* 11. Developer Profile */}
+          {/* 11. Developer Profile (Protected) */}
           <Route
             path="/profile"
             element={
-              <PlaceholderPage
-                title="Developer Profile"
-                eyebrow="Builder Identity"
-                tier="Tier 2"
-                description="Profile view, contribution heatmap, points progress, badge achievements, and personal library."
-                quickLinks={[
-                  { path: '/portfolio', label: 'Edit Portfolio' },
-                  { path: '/leaderboard', label: 'Check Leaderboard' },
-                ]}
-              />
+              <ProtectedRoute>
+                <PlaceholderPage
+                  title="Developer Profile"
+                  eyebrow="Builder Identity"
+                  tier="Tier 2"
+                  description="Profile view, contribution heatmap, points progress, badge achievements, and personal library."
+                  quickLinks={[
+                    { path: '/portfolio', label: 'Edit Portfolio' },
+                    { path: '/leaderboard', label: 'Check Leaderboard' },
+                  ]}
+                />
+              </ProtectedRoute>
             }
           />
 
@@ -189,53 +205,29 @@ export default function App() {
             }
           />
 
-          {/* 14. Settings */}
+          {/* 14. Settings (Protected) */}
           <Route
             path="/settings"
             element={
-              <PlaceholderPage
-                title="Preferences & Settings"
-                eyebrow="Account Settings"
-                tier="Tier 2"
-                description="Theme toggles, motion preferences, accent colors (including Legend Tier gold), and account data management."
-                quickLinks={[
-                  { path: '/profile', label: 'View Profile' },
-                ]}
-              />
+              <ProtectedRoute>
+                <PlaceholderPage
+                  title="Preferences & Settings"
+                  eyebrow="Account Settings"
+                  tier="Tier 2"
+                  description="Theme toggles, motion preferences, accent colors (including Legend Tier gold), and account data management."
+                  quickLinks={[
+                    { path: '/profile', label: 'View Profile' },
+                  ]}
+                />
+              </ProtectedRoute>
             }
           />
 
           {/* 15. Sign In */}
-          <Route
-            path="/login"
-            element={
-              <PlaceholderPage
-                title="Sign In"
-                eyebrow="Authentication"
-                tier="Tier 2"
-                description="Sign in to your DevVerse account with server-side authentication and session management."
-                quickLinks={[
-                  { path: '/signup', label: 'Create an Account' },
-                ]}
-              />
-            }
-          />
+          <Route path="/login" element={<LoginPage />} />
 
           {/* 16. Sign Up */}
-          <Route
-            path="/signup"
-            element={
-              <PlaceholderPage
-                title="Create an Account"
-                eyebrow="Get Started"
-                tier="Tier 2"
-                description="Create a new DevVerse profile, establish your handle, and earn your first milestone points."
-                quickLinks={[
-                  { path: '/login', label: 'Already have an account? Sign In' },
-                ]}
-              />
-            }
-          />
+          <Route path="/signup" element={<SignupPage />} />
 
           {/* Backward-Compatible Redirects for Legacy .html URLs */}
           <Route path="/index.html" element={<Navigate to="/" replace />} />
@@ -273,6 +265,7 @@ export default function App() {
           />
         </Route>
       </Routes>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

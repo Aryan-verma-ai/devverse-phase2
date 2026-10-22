@@ -57,6 +57,7 @@ async function request(endpoint, options = {}) {
 
   const config = {
     method: 'GET',
+    credentials: 'include',
     headers: {
       'Accept': 'application/json',
       ...headers,

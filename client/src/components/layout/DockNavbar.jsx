@@ -1,8 +1,10 @@
 import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { NAV_ITEMS } from './navItems';
+import { useAuth } from '../../context/AuthContext';
 
 export default function DockNavbar({ onToggleMobileMenu, theme, onToggleTheme, mobileMenuOpen }) {
+  const { user, isAuthenticated, logout } = useAuth();
   const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent || '');
 
   return (
@@ -69,18 +71,61 @@ export default function DockNavbar({ onToggleMobileMenu, theme, onToggleTheme, m
             )}
           </button>
 
-          {/* Profile Link */}
-          <NavLink
-            to="/profile"
-            className={({ isActive }) => `dock-icon-btn ${isActive ? 'active' : ''}`}
-            title="Profile"
-            aria-label="Developer profile"
-          >
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="12" cy="8" r="4" />
-              <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
-            </svg>
-          </NavLink>
+          {/* Profile / Auth */}
+          {isAuthenticated ? (
+            <>
+              <NavLink
+                to="/profile"
+                className={({ isActive }) => `dock-icon-btn ${isActive ? 'active' : ''}`}
+                title={`Signed in as ${user?.displayName || user?.username} (@${user?.username})`}
+                aria-label="Developer profile"
+              >
+                <div
+                  style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    background: 'var(--accent)',
+                    color: 'var(--on-accent)',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  {(user?.displayName || user?.username || 'U')[0]}
+                </div>
+              </NavLink>
+
+              <button
+                type="button"
+                className="dock-icon-btn"
+                title="Sign out of DevVerse"
+                aria-label="Sign out"
+                onClick={logout}
+              >
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+              </button>
+            </>
+          ) : (
+            <NavLink
+              to="/login"
+              className={({ isActive }) => `dock-icon-btn ${isActive ? 'active' : ''}`}
+              title="Sign in to DevVerse"
+              aria-label="Sign in"
+            >
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <circle cx="12" cy="8" r="4" />
+                <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+              </svg>
+            </NavLink>
+          )}
 
           {/* Settings Link */}
           <NavLink
