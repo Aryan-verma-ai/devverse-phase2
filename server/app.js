@@ -28,6 +28,7 @@ import { getDatabaseStatus } from './config/database.js';
 import requestLogger from './middleware/requestLogger.js';
 import notFound from './middleware/notFound.js';
 import errorHandler from './middleware/errorHandler.js';
+import projectRoutes from './routes/projects.js';
 import { validateBody } from './utils/validate.js';
 import AppError from './utils/AppError.js';
 
@@ -63,12 +64,8 @@ app.use(requestLogger);
 
 // ---------------------------------------------------------------------------
 // 4. Feature routes
-// Route files are mounted here as they are added in later prompts.
-// Example (Prompt 18):
-//   import projectRoutes from './routes/projects.js';
-//   app.use('/api/projects', projectRoutes);
 // ---------------------------------------------------------------------------
-// (none yet — feature routes arrive in Prompt 18+)
+app.use('/api/projects', projectRoutes);
 
 // ---------------------------------------------------------------------------
 // 5. Health endpoint

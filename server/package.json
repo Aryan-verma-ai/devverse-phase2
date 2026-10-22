@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "node tests/middleware.test.js && node tests/database.test.js && node tests/models.test.js"
+    "test": "node tests/middleware.test.js && node tests/database.test.js && node tests/models.test.js && node tests/projects.test.js"
   },
   "dependencies": {
     "cors": "^2.8.5",

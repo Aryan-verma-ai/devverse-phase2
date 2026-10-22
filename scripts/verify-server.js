@@ -58,6 +58,11 @@ test('server/config/database.js exists', () => assert(fileExists('server/config/
 test('server/models/User.js exists', () => assert(fileExists('server/models/User.js')));
 test('server/models/Project.js exists', () => assert(fileExists('server/models/Project.js')));
 test('server/models/index.js exists', () => assert(fileExists('server/models/index.js')));
+test('server/routes/projects.js exists', () => assert(fileExists('server/routes/projects.js')));
+test('server/controllers/projectController.js exists', () => assert(fileExists('server/controllers/projectController.js')));
+test('server/services/projectService.js exists', () => assert(fileExists('server/services/projectService.js')));
+test('server/validators/projectValidator.js exists', () => assert(fileExists('server/validators/projectValidator.js')));
+test('server/middleware/devAuthGuard.js exists', () => assert(fileExists('server/middleware/devAuthGuard.js')));
 test('.env.example exists at repo root', () => assert(fileExists('.env.example')));
 test('.gitignore exists at repo root', () => assert(fileExists('.gitignore')));
 
@@ -254,6 +259,11 @@ const filesToScan = [
   'server/config/database.js',
   'server/models/User.js',
   'server/models/Project.js',
+  'server/routes/projects.js',
+  'server/controllers/projectController.js',
+  'server/services/projectService.js',
+  'server/validators/projectValidator.js',
+  'server/middleware/devAuthGuard.js',
 ];
 const suspiciousPatterns = [
   /mongodb\+srv:\/\/[^<\s]+:[^<\s]+@/i,   // real Atlas URI

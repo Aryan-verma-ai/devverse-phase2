@@ -59,6 +59,29 @@ export default function errorHandler(err, req, res, next) {
     });
   }
 
+  // ── 3. Handle Mongoose Validation Errors ──────────────────────────────────
+  if (err.name === 'ValidationError' && err.errors) {
+    const details = Object.values(err.errors).map((e) => ({
+      field: e.path,
+      message: e.message,
+    }));
+    return res.status(422).json({
+      status: 'error',
+      code: 'VALIDATION_ERROR',
+      message: 'Validation failed.',
+      details,
+    });
+  }
+
+  // ── 4. Handle Mongoose CastError (e.g. invalid ObjectId) ──────────────────
+  if (err.name === 'CastError') {
+    return res.status(400).json({
+      status: 'error',
+      code: 'INVALID_ID',
+      message: `Invalid ${err.path || 'identifier'} format.`,
+    });
+  }
+
   // ── 3. Known operational errors (AppError instances) ───────────────────────
   // These are anticipated, deliberate errors thrown by controllers/services.
   // The message is safe to surface to the client as-is.
