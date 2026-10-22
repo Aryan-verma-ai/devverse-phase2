@@ -2,6 +2,10 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import ProjectCard from '../components/ui/ProjectCard';
 import EmptyState from '../components/ui/EmptyState';
+import LoadingState from '../components/ui/LoadingState';
+import StatusMessage from '../components/ui/StatusMessage';
+import Button from '../components/ui/Button';
+import projectService from '../services/projectService';
 import { getSeedProjects, getSeedCategories, filterAndSortProjects } from '../data/seedProjects';
 
 const DIFFICULTIES = ['All', 'Beginner', 'Intermediate', 'Advanced'];
@@ -13,8 +17,8 @@ const SORT_OPTIONS = [
 ];
 
 /**
- * Explore Projects page displaying searchable, filterable, and sortable project cards.
- * Uses isolated seed data module with zero raw DOM injection sinks.
+ * Explore Projects page querying the backend REST API with bounded pagination,
+ * real loading skeletons, error states, and explicit data mode labeling.
  */
 export default function ExplorePage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -33,10 +37,13 @@ export default function ExplorePage() {
   const [likedIds, setLikedIds] = useState(() => new Set());
   const [bookmarkedIds, setBookmarkedIds] = useState(() => new Set());
 
-  // Projects list — derived fresh each render so session-submitted projects
-  // appear immediately without needing a stale-memo invalidation mechanism.
-  // getSeedProjects() is cheap (two array spreads) so no memoisation needed.
-  const allProjects = getSeedProjects();
+  // API query & data state
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [dataMode, setDataMode] = useState('api'); // 'api' | 'demo'
+  const [totalCount, setTotalCount] = useState(0);
+
   const availableCategories = useMemo(() => ['All', ...getSeedCategories()], []);
 
   // Sync category changes with URL query parameter
@@ -50,9 +57,12 @@ export default function ExplorePage() {
   // Global '/' keyboard shortcut to focus search
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === '/' && document.activeElement !== searchInputRef.current &&
-          document.activeElement.tagName !== 'INPUT' &&
-          document.activeElement.tagName !== 'TEXTAREA') {
+      if (
+        e.key === '/' &&
+        document.activeElement !== searchInputRef.current &&
+        document.activeElement.tagName !== 'INPUT' &&
+        document.activeElement.tagName !== 'TEXTAREA'
+      ) {
         e.preventDefault();
         searchInputRef.current?.focus();
       }
@@ -60,6 +70,67 @@ export default function ExplorePage() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
+
+  // Fetch projects from the API
+  const fetchProjectsFromApi = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await projectService.getProjects({
+        search: search.trim() || undefined,
+        category: category !== 'All' ? category : undefined,
+        difficulty: difficulty !== 'All' ? difficulty : undefined,
+        sort,
+        limit: 50,
+      });
+      setProjects(res.projects);
+      setTotalCount(res.pagination.total);
+      setDataMode('api');
+    } catch (err) {
+      setError(err.message || 'Unable to load projects from the DevVerse API.');
+      setProjects([]);
+      setTotalCount(0);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fallback to local demo seed data only upon explicit user request
+  const handleLoadDemoFallback = () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const allSeed = getSeedProjects();
+      const filtered = filterAndSortProjects(allSeed, {
+        search,
+        category,
+        difficulty,
+        sort,
+      });
+      setProjects(filtered);
+      setTotalCount(filtered.length);
+      setDataMode('demo');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load projects whenever filters change
+  useEffect(() => {
+    if (dataMode === 'demo') {
+      const allSeed = getSeedProjects();
+      const filtered = filterAndSortProjects(allSeed, {
+        search,
+        category,
+        difficulty,
+        sort,
+      });
+      setProjects(filtered);
+      setTotalCount(filtered.length);
+    } else {
+      fetchProjectsFromApi();
+    }
+  }, [category, difficulty, sort, search, dataMode]);
 
   // Update category handler with search param reflection
   const handleCategoryChange = (newCat) => {
@@ -84,16 +155,6 @@ export default function ExplorePage() {
 
   const isFiltered = search.trim() !== '' || category !== 'All' || difficulty !== 'All' || sort !== 'trending';
 
-  // Deterministic filtered and sorted project list
-  const filteredProjects = useMemo(() => {
-    return filterAndSortProjects(allProjects, {
-      search,
-      category,
-      difficulty,
-      sort,
-    });
-  }, [allProjects, search, category, difficulty, sort]);
-
   // Like & Bookmark toggle handlers
   const handleToggleLike = (e, projectId) => {
     setLikedIds((prev) => {
@@ -112,8 +173,6 @@ export default function ExplorePage() {
       return next;
     });
   };
-
-  const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent || '');
 
   return (
     <div className="explore-page-wrap" style={{ paddingBottom: '90px' }}>
@@ -270,20 +329,77 @@ export default function ExplorePage() {
       <section className="wrap" style={{ padding: '0 24px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
           <span style={{ fontFamily: 'var(--font-mono)', fontSize: '13px', color: 'var(--text-tertiary)' }}>
-            {filteredProjects.length} project{filteredProjects.length === 1 ? '' : 's'}
-            {search.trim() && (
+            {loading ? 'Fetching catalog…' : `${totalCount} project${totalCount === 1 ? '' : 's'}`}
+            {search.trim() && !loading && (
               <span> matching &ldquo;{search.trim()}&rdquo;</span>
             )}
           </span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-tertiary)', background: 'var(--surface)', padding: '3px 8px', borderRadius: '4px' }}>
-            Demo Data
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span
+              style={{
+                fontFamily: 'var(--font-mono)',
+                fontSize: '11px',
+                color: dataMode === 'api' ? 'var(--accent, #4fe3c1)' : 'var(--text-tertiary)',
+                background: 'var(--surface)',
+                border: '1px solid var(--border)',
+                padding: '3px 8px',
+                borderRadius: '4px',
+              }}
+            >
+              {dataMode === 'api' ? '● Live API (MongoDB)' : '○ Demo Mode (Seed Data)'}
+            </span>
+            {dataMode === 'demo' && (
+              <button
+                type="button"
+                onClick={() => setDataMode('api')}
+                className="btn btn-ghost btn-sm"
+                style={{ fontSize: '11px', padding: '2px 8px' }}
+              >
+                Reconnect API
+              </button>
+            )}
+          </div>
         </div>
 
-        {/* Grid or Empty State */}
-        {filteredProjects.length > 0 ? (
+        {/* Loading State */}
+        {loading && (
+          <LoadingState skeleton count={6} label="Loading projects from DevVerse catalog..." />
+        )}
+
+        {/* Failure / Error State */}
+        {!loading && error && (
+          <div style={{ marginBottom: '32px' }}>
+            <StatusMessage
+              type="error"
+              title="Failed to Load Projects from Server"
+              message={error}
+            >
+              <div style={{ marginTop: '16px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="sm"
+                  onClick={fetchProjectsFromApi}
+                >
+                  Retry Loading
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLoadDemoFallback}
+                >
+                  Switch to Demo Seed Data
+                </Button>
+              </div>
+            </StatusMessage>
+          </div>
+        )}
+
+        {/* Content: Grid or Empty State */}
+        {!loading && !error && projects.length > 0 && (
           <div className="grid grid-3" id="explore-grid">
-            {filteredProjects.map((project) => {
+            {projects.map((project) => {
               const isLiked = likedIds.has(project.id);
               const isBookmarked = bookmarkedIds.has(project.id);
               const displayedLikes = isLiked ? project.likes + 1 : project.likes;
@@ -308,7 +424,9 @@ export default function ExplorePage() {
               );
             })}
           </div>
-        ) : (
+        )}
+
+        {!loading && !error && projects.length === 0 && (
           <EmptyState
             title="No matching projects found"
             description={

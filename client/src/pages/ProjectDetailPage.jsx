@@ -1,8 +1,11 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getSeedProjectById, getSeedAuthor, getRelatedProjects, validateUrlProtocol } from '../data/seedProjects';
+import projectService from '../services/projectService';
 import ProjectCard from '../components/ui/ProjectCard';
 import EmptyState from '../components/ui/EmptyState';
+import LoadingState from '../components/ui/LoadingState';
+import StatusMessage from '../components/ui/StatusMessage';
 import Button from '../components/ui/Button';
 
 const TECH_GRADIENTS = [
@@ -21,26 +24,84 @@ const DEFAULT_FEATURES = [
 ];
 
 /**
- * Project Detail page displaying complete metadata, author info,
- * validated external links, supported interactions, and related projects.
+ * Project Detail page fetching live data from the API with loading,
+ * not-found, and error states, while maintaining safe link protocol checks.
  */
 export default function ProjectDetailPage() {
   const { id } = useParams();
+
+  // Project data & lifecycle state
+  const [project, setProject] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+  const [error, setError] = useState(null);
 
   // Local interaction state
   const [liked, setLiked] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
   const [shareFeedback, setShareFeedback] = useState(false);
 
-  // Retrieve project from temporary seed repository
-  const project = useMemo(() => getSeedProjectById(id), [id]);
+  const loadProject = async () => {
+    setLoading(true);
+    setNotFound(false);
+    setError(null);
+
+    try {
+      // 1. Attempt API fetch
+      const apiProject = await projectService.getProjectById(id);
+      setProject(apiProject);
+    } catch (err) {
+      // If API reports 404 or INVALID_ID, check if it's a seed project ID (e.g. 'p1')
+      if (err.status === 404 || err.code === 'NOT_FOUND' || err.code === 'INVALID_ID') {
+        const seedFallback = getSeedProjectById(id);
+        if (seedFallback) {
+          setProject(seedFallback);
+          return;
+        }
+        setNotFound(true);
+      } else {
+        // Network / 500 failure
+        setError(err.message || 'Unable to load project from server.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadProject();
+  }, [id]);
 
   // Retrieve author info and related projects
-  const author = useMemo(() => project ? getSeedAuthor(project.author) : null, [project]);
-  const relatedProjects = useMemo(() => project ? getRelatedProjects(project.id, 3) : [], [project]);
+  const author = useMemo(() => {
+    if (!project) return null;
+    const authorHandle = project.owner?.username || project.author || 'devverse';
+    const seedAuthor = getSeedAuthor(authorHandle);
+
+    return {
+      name: project.owner?.displayName || seedAuthor?.name || authorHandle,
+      handle: authorHandle,
+      bio: project.owner?.bio || seedAuthor?.bio || '',
+      skills: project.owner?.skills || seedAuthor?.skills || project.tags || [],
+    };
+  }, [project]);
+
+  const relatedProjects = useMemo(() => {
+    if (!project) return [];
+    return getRelatedProjects(project.id || project._id, 3);
+  }, [project]);
+
+  // Loading State
+  if (loading) {
+    return (
+      <div className="wrap" style={{ padding: '60px 24px 100px' }}>
+        <LoadingState label="Loading project details..." />
+      </div>
+    );
+  }
 
   // Graceful not-found state for unknown or missing project ID
-  if (!project) {
+  if (notFound || (!loading && !error && !project)) {
     return (
       <div className="wrap" style={{ padding: '60px 24px 100px' }}>
         <EmptyState
@@ -53,19 +114,37 @@ export default function ProjectDetailPage() {
     );
   }
 
+  // Error State
+  if (error) {
+    return (
+      <div className="wrap" style={{ padding: '60px 24px 100px' }}>
+        <StatusMessage
+          type="error"
+          title="Failed to Load Project"
+          message={error}
+        >
+          <div style={{ marginTop: '16px' }}>
+            <Button type="button" variant="primary" size="sm" onClick={loadProject}>
+              Retry Loading
+            </Button>
+          </div>
+        </StatusMessage>
+      </div>
+    );
+  }
+
   // Calculate gradient and formatted numbers
   const gradient = typeof project.gradient === 'number'
     ? TECH_GRADIENTS[project.gradient % TECH_GRADIENTS.length]
     : project.gradient || TECH_GRADIENTS[0];
 
   const likesCount = liked ? project.likes + 1 : project.likes;
-  const viewsCount = typeof project.views === 'number' ? project.views.toLocaleString() : project.views;
+  const viewsCount = typeof project.views === 'number' ? project.views.toLocaleString() : (project.views || '0');
 
   // External Links — only render when the project has explicit URLs set.
   // Do NOT fabricate URLs for projects that lack them.
   const safeGithubUrl = project.githubUrl ? validateUrlProtocol(project.githubUrl) : null;
   const safeDemoUrl = project.demoUrl ? validateUrlProtocol(project.demoUrl) : null;
-
 
   const handleShareClick = async () => {
     try {
@@ -141,7 +220,7 @@ export default function ProjectDetailPage() {
                   {project.difficulty}
                 </span>
                 <span style={{ fontSize: '12px', fontFamily: 'var(--font-mono)', color: 'var(--text-tertiary)' }}>
-                  ID: {project.id}
+                  ID: {project.id || project._id}
                 </span>
               </div>
               <h1 style={{ fontSize: 'clamp(28px, 4vw, 48px)', lineHeight: 1.15 }}>
@@ -187,18 +266,18 @@ export default function ProjectDetailPage() {
                     color: 'var(--text-primary)',
                   }}
                 >
-                  {author.name.charAt(0)}
+                  {author?.name ? author.name.charAt(0) : 'D'}
                 </div>
               </div>
               <div>
                 <div style={{ fontWeight: 600, fontSize: '15px', color: 'var(--text-primary)' }}>
-                  {author.name}
+                  {author?.name}
                 </div>
                 <Link
                   to="/profile"
                   style={{ fontSize: '12.5px', fontFamily: 'var(--font-mono)', color: 'var(--text-tertiary)', textDecoration: 'none' }}
                 >
-                  @{author.handle}
+                  @{author?.handle}
                 </Link>
               </div>
             </div>
@@ -250,102 +329,138 @@ export default function ProjectDetailPage() {
                 <span>{shareFeedback ? 'Copied URL!' : 'Share'}</span>
               </button>
 
-              {/* Safe Validated Repository Link */}
+              {/* External Links */}
               {safeGithubUrl && (
                 <a
                   href={safeGithubUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn btn-outline"
-                  aria-label={`View ${project.title} on GitHub (opens in new tab)`}
+                  aria-label={`View ${project.title} source on GitHub`}
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-                    <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.57.1.79-.25.79-.55v-2c-3.2.7-3.87-1.54-3.87-1.54-.53-1.33-1.29-1.69-1.29-1.69-1.05-.72.08-.7.08-.7 1.17.08 1.78 1.2 1.78 1.2 1.04 1.77 2.72 1.26 3.38.97.1-.75.4-1.26.73-1.55-2.55-.29-5.23-1.28-5.23-5.68 0-1.26.45-2.29 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11.1 11.1 0 015.8 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.09 0 4.41-2.69 5.39-5.25 5.67.41.36.78 1.08.78 2.17v3.22c0 .3.21.65.8.55A11.51 11.51 0 0023.5 12c0-6.35-5.15-11.5-11.5-11.5z" />
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z" />
                   </svg>
-                  <span>Repository ↗</span>
+                  <span>Repository</span>
                 </a>
               )}
 
-              {/* Safe Validated Live Demo Link */}
               {safeDemoUrl && (
                 <a
                   href={safeDemoUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="btn btn-primary"
-                  aria-label={`Open live demo for ${project.title} (opens in new tab)`}
+                  aria-label={`Open ${project.title} live demo`}
                 >
-                  <span>Live Demo ↗</span>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                    <polyline points="15 3 21 3 21 9" />
+                    <line x1="10" y1="14" x2="21" y2="3" />
+                  </svg>
+                  <span>Live Demo</span>
                 </a>
               )}
             </div>
           </div>
         </div>
 
-        {/* 2-Column Detail Layout */}
-        <div className="detail-grid detail-grid--wide">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-            {/* Overview Section */}
-            <section className="glass" style={{ padding: '28px' }}>
-              <div className="eyebrow">Overview</div>
-              <p style={{ fontSize: '16px', lineHeight: 1.7, color: 'var(--text-primary)', marginBottom: '14px' }}>
-                {project.desc}
+        {/* Content Layout: 2 Columns */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 320px', gap: '32px', alignItems: 'start' }}>
+          {/* Main Description & Features */}
+          <main>
+            {/* Description Card */}
+            <div className="glass" style={{ padding: '32px', marginBottom: '24px' }}>
+              <h2 style={{ fontSize: '20px', marginBottom: '16px' }}>Project Overview</h2>
+              <p style={{ fontSize: '15px', lineHeight: 1.8, color: 'var(--text-secondary)', marginBottom: '20px' }}>
+                {project.desc || project.description}
               </p>
               {!project.isTemporary && (
-                <p style={{ fontSize: '14px', lineHeight: 1.6, color: 'var(--text-secondary)' }}>
-                  Actively maintained and open for community contributions.
+                <p style={{ fontSize: '14px', lineHeight: 1.7, color: 'var(--text-secondary)' }}>
+                  This project was built to address common developer workflow bottlenecks by combining modern engineering practices with an intuitive user experience.
                 </p>
               )}
-            </section>
+            </div>
 
-            {/* Features Section */}
-            <section className="glass" style={{ padding: '28px' }}>
-              <div className="eyebrow">Key Architecture & Features</div>
-              <div className="grid grid-2" style={{ gap: '14px' }}>
-                {(project.features && project.features.length > 0
-                  ? project.features
-                  : DEFAULT_FEATURES
-                ).map((feature, idx) => (
+            {/* Key Features */}
+            <div className="glass" style={{ padding: '32px', marginBottom: '24px' }}>
+              <h2 style={{ fontSize: '20px', marginBottom: '16px' }}>Key Capabilities</h2>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+                {(project.features && project.features.length > 0 ? project.features : DEFAULT_FEATURES).map((feat, idx) => (
                   <div
                     key={idx}
                     style={{
-                      padding: '14px 16px',
-                      borderRadius: 'var(--radius-sm)',
+                      padding: '16px',
                       background: 'var(--surface)',
+                      borderRadius: 'var(--radius-md)',
                       border: '1px solid var(--border)',
+                      fontSize: '14px',
+                      color: 'var(--text-secondary)',
                       display: 'flex',
-                      alignItems: 'center',
+                      alignItems: 'flex-start',
                       gap: '10px',
                     }}
                   >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" strokeWidth="2.5" aria-hidden="true" style={{ flexShrink: 0 }}>
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                    <span style={{ fontSize: '13.5px', color: 'var(--text-primary)' }}>{feature}</span>
+                    <span style={{ color: 'var(--accent)', fontWeight: 'bold' }}>✓</span>
+                    <span>{feat}</span>
                   </div>
                 ))}
               </div>
-            </section>
-          </div>
+            </div>
 
-          {/* Sticky Sidebar Info */}
-          <aside className="sticky-panel" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            {/* Technology Stack */}
+            {/* Timeline / Changelog (if imported from GitHub commits) */}
+            {project.timeline && project.timeline.length > 0 && (
+              <div className="glass" style={{ padding: '32px' }}>
+                <h2 style={{ fontSize: '20px', marginBottom: '16px' }}>Recent Development Timeline</h2>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  {project.timeline.map((item, idx) => (
+                    <div
+                      key={idx}
+                      style={{
+                        padding: '12px 16px',
+                        background: 'var(--surface)',
+                        borderRadius: 'var(--radius-sm)',
+                        border: '1px solid var(--border)',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        gap: '12px',
+                        flexWrap: 'wrap',
+                        fontSize: '13px',
+                      }}
+                    >
+                      <span style={{ color: 'var(--text-primary)' }}>{item.message}</span>
+                      <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--text-tertiary)', fontSize: '11px' }}>
+                        {item.hash?.substring(0, 7)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </main>
+
+          {/* Sidebar Metadata */}
+          <aside style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* Technologies */}
             <div className="glass" style={{ padding: '22px' }}>
-              <div className="eyebrow">Technology Stack</div>
-              <div className="pc-tags" style={{ marginTop: '8px' }}>
-                {project.tags.map((tag) => (
-                  <span key={tag} className="chip">
-                    {tag}
+              <div className="eyebrow">Built with</div>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '10px' }}>
+                {(project.tags || project.technologies || []).map((tech) => (
+                  <span key={tech} className="chip">
+                    {tech}
                   </span>
                 ))}
               </div>
             </div>
 
-            {/* Metrics & Metadata */}
+            {/* Meta Info Card */}
             <div className="glass" style={{ padding: '22px' }}>
               <div className="eyebrow">Project Stats</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '8px' }}>
+              <div style={{ marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: '8px' }}>
+                  <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Category</span>
+                  <span style={{ fontSize: '13px', fontWeight: 600 }}>{project.category}</span>
+                </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: '8px' }}>
                   <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Difficulty</span>
                   <span style={{ fontSize: '13px', fontWeight: 600 }}>{project.difficulty}</span>
@@ -367,9 +482,9 @@ export default function ProjectDetailPage() {
             <div className="glass" style={{ padding: '22px' }}>
               <div className="eyebrow">About the Builder</div>
               <p style={{ fontSize: '13px', lineHeight: 1.6, color: 'var(--text-secondary)', marginTop: '8px' }}>
-                {author.bio || `${author.name} is a software engineer building modern applications on DevVerse.`}
+                {author?.bio || `${author?.name} is a software engineer building modern applications on DevVerse.`}
               </p>
-              {author.skills && (
+              {author?.skills && (
                 <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginTop: '14px' }}>
                   {author.skills.map((skill) => (
                     <span key={skill} className="chip" style={{ fontSize: '11px' }}>

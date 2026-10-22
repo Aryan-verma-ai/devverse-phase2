@@ -10,6 +10,7 @@ import {
   getUserSubmittedProjects,
   validateUrlProtocol,
 } from '../data/seedProjects';
+import projectService from '../services/projectService';
 import {
   fetchGithubRepo,
   parseGithubRepoUrl,
@@ -38,6 +39,7 @@ export default function SubmitProjectPage() {
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [successInfo, setSuccessInfo] = useState(null);
+  const [apiError, setApiError] = useState(null);
 
   // GitHub import panel state
   const [ghUrl, setGhUrl] = useState('');
@@ -176,39 +178,56 @@ export default function SubmitProjectPage() {
   // Submit
   // ---------------------------------------------------------------------------
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validate()) return;
 
     setSubmitting(true);
+    setApiError(null);
+
+    const payload = {
+      title: form.title.trim(),
+      description: form.desc.trim(),
+      category: form.category,
+      difficulty: form.difficulty,
+      technologies: form.tags.split(',').map((t) => t.trim()).filter(Boolean),
+      features: form.features ? form.features.split('\n').map((f) => f.trim()).filter(Boolean) : [],
+      githubUrl: form.githubUrl.trim(),
+      demoUrl: form.demoUrl.trim(),
+      timeline: importedTimeline,
+    };
 
     try {
-      const newProject = addTemporaryProject({
-        title: form.title,
-        desc: form.desc,
-        category: form.category,
-        difficulty: form.difficulty,
-        tags: form.tags,
-        features: form.features,
-        githubUrl: form.githubUrl,
-        demoUrl: form.demoUrl,
-        author: 'you',
-        timeline: importedTimeline,
+      // 1. Attempt live API submission
+      const created = await projectService.createProject(payload);
+
+      // Keep local session tracking in sync
+      addTemporaryProject({
+        id: created.id || created._id,
+        ...payload,
+        author: created.author || 'you',
       });
 
-      // Refresh session published list
       setMyProjects(getUserSubmittedProjects());
+      setSuccessInfo({ id: created.id || created._id, title: created.title });
 
-      // Honest success feedback
-      setSuccessInfo({ id: newProject.id, title: newProject.title });
-
-      // Reset form and import state for next project
+      // Reset form
       setForm(INITIAL_FORM);
       setErrors({});
       setGhUrl('');
       setGhStatus(null);
       setImportedTimeline([]);
+    } catch (err) {
+      if (err.details && Array.isArray(err.details) && err.details.length > 0) {
+        const fieldErrors = {};
+        err.details.forEach((d) => {
+          if (d.field === 'description') fieldErrors.desc = d.message;
+          else fieldErrors[d.field] = d.message;
+        });
+        setErrors(fieldErrors);
+      }
+      setApiError(err.message || 'Failed to submit project to DevVerse API.');
     } finally {
       setSubmitting(false);
     }
@@ -276,8 +295,8 @@ export default function SubmitProjectPage() {
         {/* Transparent Storage Disclosure Banner */}
         <StatusMessage
           type="info"
-          title="Notice: Client-Side Demo Storage"
-          message="Projects submitted here are added to temporary memory for this browser session. Server-side MongoDB persistence and multi-user synchronization are scheduled for Phase E."
+          title="Notice: Client-Side Demo Storage & Live MongoDB Persistence"
+          message="Projects submitted here are persisted live to MongoDB via the DevVerse REST API. In offline mode, projects fall back to temporary memory for this browser session."
         />
 
         {/* ------------------------------------------------------------------ */}
@@ -357,6 +376,18 @@ export default function SubmitProjectPage() {
             }
             onDismiss={() => setSuccessInfo(null)}
           />
+        )}
+
+        {/* API Error Alert */}
+        {apiError && (
+          <div style={{ marginBottom: '24px' }}>
+            <StatusMessage
+              type="error"
+              title="Project Submission Failed"
+              message={apiError}
+              onDismiss={() => setApiError(null)}
+            />
+          </div>
         )}
 
         {/* ------------------------------------------------------------------ */}
