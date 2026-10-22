@@ -15,7 +15,8 @@
     "test:github": "node scripts/verify-github-import.js",
     "test:unit": "node scripts/test-unit-helpers.js",
     "test:api": "node scripts/test-api-client.js",
-    "test:auth": "node scripts/test-auth-context.js"
+    "test:auth": "node scripts/test-auth-context.js",
+    "test:profile": "node scripts/test-profile-portfolio.js"
   },
   "dependencies": {
     "react": "^18.3.1",

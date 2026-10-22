@@ -67,6 +67,10 @@ test('server/routes/auth.js exists', () => assert(fileExists('server/routes/auth
 test('server/controllers/authController.js exists', () => assert(fileExists('server/controllers/authController.js')));
 test('server/services/authService.js exists', () => assert(fileExists('server/services/authService.js')));
 test('server/validators/authValidator.js exists', () => assert(fileExists('server/validators/authValidator.js')));
+test('server/routes/users.js exists', () => assert(fileExists('server/routes/users.js')));
+test('server/controllers/userController.js exists', () => assert(fileExists('server/controllers/userController.js')));
+test('server/services/userService.js exists', () => assert(fileExists('server/services/userService.js')));
+test('server/validators/userValidator.js exists', () => assert(fileExists('server/validators/userValidator.js')));
 test('server/middleware/auth.js exists', () => assert(fileExists('server/middleware/auth.js')));
 test('server/utils/session.js exists', () => assert(fileExists('server/utils/session.js')));
 test('docs/AUTH-DESIGN-DECISION.md exists', () => assert(fileExists('docs/AUTH-DESIGN-DECISION.md')));
@@ -275,6 +279,10 @@ const filesToScan = [
   'server/controllers/authController.js',
   'server/services/authService.js',
   'server/validators/authValidator.js',
+  'server/routes/users.js',
+  'server/controllers/userController.js',
+  'server/services/userService.js',
+  'server/validators/userValidator.js',
   'server/middleware/auth.js',
   'server/utils/session.js',
 ];

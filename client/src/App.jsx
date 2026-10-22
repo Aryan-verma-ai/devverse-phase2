@@ -9,6 +9,8 @@ import ProjectDetailPage from './pages/ProjectDetailPage';
 import SubmitProjectPage from './pages/SubmitProjectPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
+import ProfilePage from './pages/ProfilePage';
+import PortfolioPage from './pages/PortfolioPage';
 
 export default function App() {
   return (
@@ -134,43 +136,13 @@ export default function App() {
             }
           />
 
-          {/* 10. Portfolio Builder & Viewer (Protected) */}
-          <Route
-            path="/portfolio"
-            element={
-              <ProtectedRoute>
-                <PlaceholderPage
-                  title="Portfolio Builder"
-                  eyebrow="Builder Showcase"
-                  tier="Tier 2"
-                  description="Interactive portfolio editor with live card preview, skill chips, links, and public shareable URLs."
-                  quickLinks={[
-                    { path: '/profile', label: 'Your Profile' },
-                    { path: '/settings', label: 'Settings' },
-                  ]}
-                />
-              </ProtectedRoute>
-            }
-          />
+          {/* 10. Portfolio Builder & Viewer */}
+          <Route path="/portfolio" element={<PortfolioPage />} />
+          <Route path="/portfolio/:username" element={<PortfolioPage />} />
 
-          {/* 11. Developer Profile (Protected) */}
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <PlaceholderPage
-                  title="Developer Profile"
-                  eyebrow="Builder Identity"
-                  tier="Tier 2"
-                  description="Profile view, contribution heatmap, points progress, badge achievements, and personal library."
-                  quickLinks={[
-                    { path: '/portfolio', label: 'Edit Portfolio' },
-                    { path: '/leaderboard', label: 'Check Leaderboard' },
-                  ]}
-                />
-              </ProtectedRoute>
-            }
-          />
+          {/* 11. Developer Profile */}
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/profile/:username" element={<ProfilePage />} />
 
           {/* 12. Leaderboard */}
           <Route
