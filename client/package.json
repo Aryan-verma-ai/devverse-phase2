@@ -11,7 +11,8 @@
     "test:components": "node scripts/verify-components.js",
     "test:explore": "node scripts/verify-explore.js",
     "test:detail": "node scripts/verify-detail.js",
-    "test:submit": "node scripts/verify-submit.js"
+    "test:submit": "node scripts/verify-submit.js",
+    "test:github": "node scripts/verify-github-import.js"
   },
   "dependencies": {
     "react": "^18.3.1",
