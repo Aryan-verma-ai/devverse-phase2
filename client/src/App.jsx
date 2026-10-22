@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import AppShell from './components/layout/AppShell';
 import PlaceholderPage from './pages/PlaceholderPage';
 import ExplorePage from './pages/ExplorePage';
+import ProjectDetailPage from './pages/ProjectDetailPage';
 
 export default function App() {
   return (
@@ -31,21 +32,7 @@ export default function App() {
           <Route path="/explore" element={<ExplorePage />} />
 
           {/* 3. Project Detail */}
-          <Route
-            path="/projects/:id"
-            element={
-              <PlaceholderPage
-                title="Project Detail"
-                eyebrow="Project Showcase"
-                tier="Tier 1"
-                description="Deep dive into project architecture, stack, view counts, comments, and contributor profile."
-                quickLinks={[
-                  { path: '/explore', label: 'Back to Explore' },
-                  { path: '/submit-project', label: 'Submit Another Project' },
-                ]}
-              />
-            }
-          />
+          <Route path="/projects/:id" element={<ProjectDetailPage />} />
 
           {/* 4. Submit Project */}
           <Route

@@ -284,3 +284,73 @@ export function filterAndSortProjects(projects, {
     }
   });
 }
+
+export const SEED_DEVS = Object.freeze([
+  { handle: 'kmori', name: 'Kenji Mori', avatarSeed: 'kmori', followers: 4820, projects: 14, points: 9840, bio: 'Systems engineer obsessed with latency. Building databases that refuse to fall over.', skills: ['Rust', 'Go', 'Distributed Systems'] },
+  { handle: 'ari-devs', name: 'Ari Solano', avatarSeed: 'arisolano', followers: 3110, projects: 9, points: 7420, bio: 'Frontend architect. If it doesn\'t feel alive, it isn\'t shipping.', skills: ['React', 'TypeScript', 'Motion Design'] },
+  { handle: 'sena.codes', name: 'Sena Park', avatarSeed: 'senapark', followers: 5980, projects: 17, points: 11230, bio: 'Full-stack builder shipping realtime tools for teams that hate meetings.', skills: ['Node.js', 'Vue', 'CRDT'] },
+  { handle: 'lumen', name: 'Lumen Cross', avatarSeed: 'lumencross', followers: 8340, projects: 6, points: 15600, bio: 'Graphics programmer. I make the browser do things it was never asked to do.', skills: ['WebGL', 'Three.js', 'Shaders'] },
+  { handle: 'noa.ml', name: 'Noa Reyes', avatarSeed: 'noareyes', followers: 2760, projects: 11, points: 6510, bio: 'ML engineer turning research papers into tools people actually use.', skills: ['Python', 'PyTorch', 'FastAPI'] },
+  { handle: 'priya.dev', name: 'Priya Nair', avatarSeed: 'priyanair', followers: 1980, projects: 8, points: 4310, bio: 'Building calm software for busy teams.', skills: ['Vue', 'Node.js', 'Design Systems'] },
+  { handle: 'dax', name: 'Dax Whitfield', avatarSeed: 'daxwhitfield', followers: 1420, projects: 5, points: 3020, bio: 'Tooling nerd. I build the things that build the things.', skills: ['Rust', 'CLI', 'DX'] },
+  { handle: 'devon.codes', name: 'Devon Blake', avatarSeed: 'devonblake', followers: 2210, projects: 7, points: 5230, bio: 'Web app builder. I like turning a messy spreadsheet workflow into something people actually enjoy opening.', skills: ['JavaScript', 'DOM', 'REST API'] },
+]);
+
+/**
+ * Returns author profile info for a handle.
+ * @param {string} handle
+ * @returns {Object}
+ */
+export function getSeedAuthor(handle) {
+  if (!handle) return { name: 'DevVerse Builder', handle: 'builder', avatarSeed: 'dev' };
+  const found = SEED_DEVS.find((d) => d.handle.toLowerCase() === handle.toLowerCase());
+  return found || { name: handle, handle, avatarSeed: handle };
+}
+
+/**
+ * Retrieves related projects in the same category or backfilled with top projects.
+ * @param {string} currentProjectId
+ * @param {number} [count=3]
+ * @returns {Array}
+ */
+export function getRelatedProjects(currentProjectId, count = 3) {
+  const current = getSeedProjectById(currentProjectId);
+  if (!current) return [];
+
+  const sameCategory = SEED_PROJECTS.filter(
+    (p) => p.category === current.category && p.id !== currentProjectId
+  );
+
+  if (sameCategory.length >= count) {
+    return sameCategory.slice(0, count);
+  }
+
+  const includedIds = new Set([currentProjectId, ...sameCategory.map((p) => p.id)]);
+  const backfill = [...SEED_PROJECTS]
+    .filter((p) => !includedIds.has(p.id))
+    .sort((a, b) => b.likes - a.likes)
+    .slice(0, count - sameCategory.length);
+
+  return [...sameCategory, ...backfill];
+}
+
+/**
+ * Validates external URL protocols, ensuring only http: and https: are permitted.
+ * Blocks dangerous schemes like javascript:, data:, vbscript:.
+ * @param {string} url
+ * @returns {string|null} Safe absolute URL or null if invalid/unsafe
+ */
+export function validateUrlProtocol(url) {
+  if (!url || typeof url !== 'string') return null;
+  const trimmed = url.trim();
+  try {
+    const parsed = new URL(trimmed);
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      return parsed.href;
+    }
+  } catch {
+    // Malformed URL string
+  }
+  return null;
+}
+

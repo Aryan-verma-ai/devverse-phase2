@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "test:routes": "node scripts/verify-routes.js",
     "test:components": "node scripts/verify-components.js",
-    "test:explore": "node scripts/verify-explore.js"
+    "test:explore": "node scripts/verify-explore.js",
+    "test:detail": "node scripts/verify-detail.js"
   },
   "dependencies": {
     "react": "^18.3.1",
