@@ -1,225 +1,316 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import AppShell from './components/layout/AppShell';
+import PlaceholderPage from './pages/PlaceholderPage';
 
 export default function App() {
-  const [theme, setTheme] = useState('dark');
-  const [accent, setAccent] = useState('violet');
-  const [motion, setMotion] = useState('on');
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-accent', accent);
-  }, [accent]);
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-motion', motion);
-  }, [motion]);
-
   return (
-    <main className="wrap" style={{ padding: '60px 24px 80px', minHeight: '100vh' }}>
-      {/* Brand Header */}
-      <header style={{ marginBottom: '40px', textAlign: 'center' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-          <span className="chip chip-accent">Design Token Foundation</span>
-          <span className="chip">Phase B • Prompt 06</span>
-        </div>
-        <h1 style={{ fontSize: 'clamp(32px, 5vw, 54px)', marginBottom: '14px' }}>
-          DevVerse <span className="grad-text">Design Tokens</span>
-        </h1>
-        <p style={{ maxWidth: '640px', margin: '0 auto', fontSize: '16px' }}>
-          Centralized design system tokens for color hierarchy, typography, glass surfaces, accessible focus rings, and motion preferences.
-        </p>
-      </header>
-
-      {/* Interactive Token Controls */}
-      <section className="glass" style={{ padding: '28px', marginBottom: '32px' }}>
-        <h2 style={{ fontSize: '18px', marginBottom: '20px' }}>Interactive Token Controls</h2>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '24px' }}>
-          {/* Theme Switcher */}
-          <div>
-            <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px' }}>
-              CANVAS THEME (data-theme)
-            </div>
-            <div className="pill-toggle">
-              <button
-                type="button"
-                className={theme === 'dark' ? 'active' : ''}
-                onClick={() => setTheme('dark')}
-              >
-                🌙 Dark OS
-              </button>
-              <button
-                type="button"
-                className={theme === 'light' ? 'active' : ''}
-                onClick={() => setTheme('light')}
-              >
-                ☀️ Warm Ivory
-              </button>
-            </div>
-          </div>
-
-          {/* Accent Color Picker */}
-          <div>
-            <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px' }}>
-              ACCENT COLOR (data-accent)
-            </div>
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-              {[
-                { id: 'violet', label: 'Violet', color: '#7c6fff' },
-                { id: 'cyan', label: 'Cyan', color: '#4fe3c1' },
-                { id: 'coral', label: 'Coral', color: '#ff6b5b' },
-                { id: 'amber', label: 'Amber', color: '#ffb86b' },
-                { id: 'legend', label: 'Legend Gold', color: '#f0c419' },
-              ].map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  title={item.label}
-                  aria-label={item.label}
-                  className={`swatch ${accent === item.id ? 'active-swatch' : ''}`}
-                  style={{ background: item.color }}
-                  onClick={() => setAccent(item.id)}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Motion Toggle */}
-          <div>
-            <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px' }}>
-              MOTION PREFERENCE (data-motion)
-            </div>
-            <div className="pill-toggle">
-              <button
-                type="button"
-                className={motion === 'on' ? 'active' : ''}
-                onClick={() => setMotion('on')}
-              >
-                ⚡ Smooth Motion
-              </button>
-              <button
-                type="button"
-                className={motion === 'off' ? 'active' : ''}
-                onClick={() => setMotion('off')}
-              >
-                🛑 Reduced Motion
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Token Showcase Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '24px' }}>
-        {/* Card 1: Typography Tokens */}
-        <section className="glass card-lift" style={{ padding: '24px' }}>
-          <h3 style={{ fontSize: '18px', marginBottom: '14px' }}>Typography Hierarchy</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <div>
-              <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-tertiary)' }}>
-                --font-display: Space Grotesk
-              </span>
-              <h4 style={{ fontSize: '24px', marginTop: '2px' }}>Where Builders Become Legends</h4>
-            </div>
-            <div>
-              <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-tertiary)' }}>
-                --font-body: Inter
-              </span>
-              <p style={{ fontSize: '14px', marginTop: '2px' }}>
-                Readable body copy with balanced line height and accessible contrast across both themes.
-              </p>
-            </div>
-            <div>
-              <span style={{ fontSize: '11px', fontFamily: 'var(--font-mono)', color: 'var(--text-tertiary)' }}>
-                --font-mono: JetBrains Mono
-              </span>
-              <div style={{ background: 'var(--surface-hover)', padding: '8px 12px', borderRadius: '8px', fontSize: '13px', marginTop: '4px' }}>
-                <code>devverse deploy --tier=legend</code>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Card 2: Interactive Controls & Focus Rings */}
-        <section className="glass card-lift" style={{ padding: '24px' }}>
-          <h3 style={{ fontSize: '18px', marginBottom: '8px' }}>Interactive Controls & Focus</h3>
-          <p style={{ fontSize: '13.5px', marginBottom: '16px' }}>
-            Press <kbd style={{ padding: '2px 6px', background: 'var(--surface-hover)', borderRadius: '4px' }}>Tab</kbd> to inspect the 2px visible focus ring on all buttons and inputs.
-          </p>
-
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '18px' }}>
-            <button type="button" className="btn btn-primary">Primary Button</button>
-            <button type="button" className="btn btn-ghost">Ghost Button</button>
-            <button type="button" className="btn btn-outline">Outline Button</button>
-          </div>
-
-          <div>
-            <label htmlFor="demo-input" style={{ display: 'block', fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '6px' }}>
-              Accessible Form Input (Tab to focus)
-            </label>
-            <input
-              id="demo-input"
-              type="text"
-              placeholder="Focus ring follows active accent..."
-              style={{
-                width: '100%',
-                padding: '10px 14px',
-                borderRadius: 'var(--radius-sm)',
-                border: '1px solid var(--border)',
-                background: 'var(--surface)',
-                outline: 'none',
-              }}
-            />
-          </div>
-        </section>
-
-        {/* Card 3: Surfaces, Radius & Motion Animation */}
-        <section className="glass card-lift" style={{ padding: '24px' }}>
-          <h3 style={{ fontSize: '18px', marginBottom: '14px' }}>Surfaces & Motion</h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '13.5px' }}>Glass Blur & Elevation</span>
-              <span className="chip">backdrop-filter: 16px</span>
-            </div>
-
-            {/* Motion animation test element */}
-            <div style={{ padding: '16px', borderRadius: 'var(--radius-sm)', background: 'var(--surface-hover)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div>
-                <div style={{ fontWeight: 600, fontSize: '13.5px' }}>Motion Pulse Check</div>
-                <div style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>
-                  {motion === 'on' ? 'Animation active (respects system / toggle)' : 'Animations disabled via token'}
-                </div>
-              </div>
-              <div
-                style={{
-                  width: '18px',
-                  height: '18px',
-                  borderRadius: '50%',
-                  background: 'var(--accent)',
-                  boxShadow: '0 0 12px var(--accent)',
-                  animation: motion === 'on' ? 'dv-demo-pulse 1.8s infinite ease-in-out' : 'none',
-                }}
+    <BrowserRouter>
+      <Routes>
+        <Route element={<AppShell />}>
+          {/* 1. Home Dashboard */}
+          <Route
+            path="/"
+            element={
+              <PlaceholderPage
+                title="Where Builders Become Legends"
+                eyebrow="Home Dashboard"
+                tier="Tier 1 / Tier 4"
+                description="The unified space for developers — discover projects, showcase work, join hackathons, and climb the leaderboard."
+                quickLinks={[
+                  { path: '/explore', label: 'Explore Projects' },
+                  { path: '/hackathons', label: 'Hackathons' },
+                  { path: '/portfolio', label: 'Build Portfolio' },
+                ]}
               />
-            </div>
+            }
+          />
 
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-              <span className="chip">--radius-sm: 10px</span>
-              <span className="chip">--radius-md: 16px</span>
-              <span className="chip">--radius-lg: 24px</span>
-            </div>
-          </div>
-        </section>
-      </div>
+          {/* 2. Explore Projects */}
+          <Route
+            path="/explore"
+            element={
+              <PlaceholderPage
+                title="Explore Projects"
+                eyebrow="The Catalog"
+                tier="Tier 1"
+                description="Search, filter, and sort through everything the DevVerse community is building."
+                quickLinks={[
+                  { path: '/projects/p1', label: 'Sample Project Detail (p1)' },
+                  { path: '/submit-project', label: '+ Submit Project' },
+                ]}
+              />
+            }
+          />
 
-      <style>{`
-        @keyframes dv-demo-pulse {
-          0%, 100% { transform: scale(1); opacity: 1; }
-          50% { transform: scale(1.35); opacity: 0.55; }
-        }
-      `}</style>
-    </main>
+          {/* 3. Project Detail */}
+          <Route
+            path="/projects/:id"
+            element={
+              <PlaceholderPage
+                title="Project Detail"
+                eyebrow="Project Showcase"
+                tier="Tier 1"
+                description="Deep dive into project architecture, stack, view counts, comments, and contributor profile."
+                quickLinks={[
+                  { path: '/explore', label: 'Back to Explore' },
+                  { path: '/submit-project', label: 'Submit Another Project' },
+                ]}
+              />
+            }
+          />
+
+          {/* 4. Submit Project */}
+          <Route
+            path="/submit-project"
+            element={
+              <PlaceholderPage
+                title="Submit a Project"
+                eyebrow="Publishing Studio"
+                tier="Tier 1"
+                description="Import repository metadata directly from public GitHub repos or submit custom project details manually."
+                quickLinks={[
+                  { path: '/explore', label: 'View Catalog' },
+                ]}
+              />
+            }
+          />
+
+          {/* 5. Communities Directory */}
+          <Route
+            path="/communities"
+            element={
+              <PlaceholderPage
+                title="Communities Directory"
+                eyebrow="Find Your People"
+                tier="Tier 3"
+                description="Connect with developers across specialized guilds: Rust, Frontend, ML, Systems, and Indie Hacking."
+                quickLinks={[
+                  { path: '/communities/c1', label: 'Rustaceans Guild Forum (c1)' },
+                  { path: '/squads', label: 'Squad Matching' },
+                ]}
+              />
+            }
+          />
+
+          {/* 6. Community Forum Detail */}
+          <Route
+            path="/communities/:id"
+            element={
+              <PlaceholderPage
+                title="Community Forum"
+                eyebrow="Discussions & Threads"
+                tier="Tier 3"
+                description="Engage in technical discussions, start question threads, and post architectural answers."
+                quickLinks={[
+                  { path: '/communities', label: 'All Communities' },
+                ]}
+              />
+            }
+          />
+
+          {/* 7. Hackathons Directory */}
+          <Route
+            path="/hackathons"
+            element={
+              <PlaceholderPage
+                title="Upcoming Hackathons"
+                eyebrow="Compete & Win"
+                tier="Tier 4"
+                description="Global sprints, prize pools, and live countdown timers for developer tools and open-source hacks."
+                quickLinks={[
+                  { path: '/hackathons/h1', label: 'Aurora Hacks 2026 (h1)' },
+                  { path: '/squads', label: 'Find a Squad' },
+                ]}
+              />
+            }
+          />
+
+          {/* 8. Hackathon Detail */}
+          <Route
+            path="/hackathons/:id"
+            element={
+              <PlaceholderPage
+                title="Hackathon Detail & Registration"
+                eyebrow="Event Information"
+                tier="Tier 4"
+                description="Event rules, submission tracks, judging criteria breakdown, and registration management."
+                quickLinks={[
+                  { path: '/hackathons', label: 'All Hackathons' },
+                  { path: '/squads', label: 'Squad Team Matcher' },
+                ]}
+              />
+            }
+          />
+
+          {/* 9. Squads & Team Matching */}
+          <Route
+            path="/squads"
+            element={
+              <PlaceholderPage
+                title="Squads & Team Matching"
+                eyebrow="Collaborative Teaming"
+                tier="Tier 3"
+                description="Algorithm-driven skill compatibility matcher for hackathon teams and long-term project squads."
+                quickLinks={[
+                  { path: '/hackathons', label: 'Hackathons' },
+                  { path: '/portfolio', label: 'Update Portfolio Skills' },
+                ]}
+              />
+            }
+          />
+
+          {/* 10. Portfolio Builder & Viewer */}
+          <Route
+            path="/portfolio"
+            element={
+              <PlaceholderPage
+                title="Portfolio Builder"
+                eyebrow="Builder Showcase"
+                tier="Tier 2"
+                description="Interactive portfolio editor with live card preview, skill chips, links, and public shareable URLs."
+                quickLinks={[
+                  { path: '/profile', label: 'Your Profile' },
+                  { path: '/settings', label: 'Settings' },
+                ]}
+              />
+            }
+          />
+
+          {/* 11. Developer Profile */}
+          <Route
+            path="/profile"
+            element={
+              <PlaceholderPage
+                title="Developer Profile"
+                eyebrow="Builder Identity"
+                tier="Tier 2"
+                description="Profile view, contribution heatmap, points progress, badge achievements, and personal library."
+                quickLinks={[
+                  { path: '/portfolio', label: 'Edit Portfolio' },
+                  { path: '/leaderboard', label: 'Check Leaderboard' },
+                ]}
+              />
+            }
+          />
+
+          {/* 12. Leaderboard */}
+          <Route
+            path="/leaderboard"
+            element={
+              <PlaceholderPage
+                title="Community Leaderboard"
+                eyebrow="Rankings & Status"
+                tier="Tier 4"
+                description="Weekly and all-time rankings for developers and projects, accompanied by a verified point transaction log."
+                quickLinks={[
+                  { path: '/profile', label: 'Your Profile' },
+                  { path: '/codex', label: 'The Codex (200 pts)' },
+                ]}
+              />
+            }
+          />
+
+          {/* 13. The Codex */}
+          <Route
+            path="/codex"
+            element={
+              <PlaceholderPage
+                title="The Codex"
+                eyebrow="Knowledge Base"
+                tier="Tier 4"
+                description="Archive of real debugging war stories and architecture lessons, gated behind 200 platform points."
+                quickLinks={[
+                  { path: '/leaderboard', label: 'Earn Points on Leaderboard' },
+                ]}
+              />
+            }
+          />
+
+          {/* 14. Settings */}
+          <Route
+            path="/settings"
+            element={
+              <PlaceholderPage
+                title="Preferences & Settings"
+                eyebrow="Account Settings"
+                tier="Tier 2"
+                description="Theme toggles, motion preferences, accent colors (including Legend Tier gold), and account data management."
+                quickLinks={[
+                  { path: '/profile', label: 'View Profile' },
+                ]}
+              />
+            }
+          />
+
+          {/* 15. Sign In */}
+          <Route
+            path="/login"
+            element={
+              <PlaceholderPage
+                title="Sign In"
+                eyebrow="Authentication"
+                tier="Tier 2"
+                description="Sign in to your DevVerse account with server-side authentication and session management."
+                quickLinks={[
+                  { path: '/signup', label: 'Create an Account' },
+                ]}
+              />
+            }
+          />
+
+          {/* 16. Sign Up */}
+          <Route
+            path="/signup"
+            element={
+              <PlaceholderPage
+                title="Create an Account"
+                eyebrow="Get Started"
+                tier="Tier 2"
+                description="Create a new DevVerse profile, establish your handle, and earn your first milestone points."
+                quickLinks={[
+                  { path: '/login', label: 'Already have an account? Sign In' },
+                ]}
+              />
+            }
+          />
+
+          {/* Backward-Compatible Redirects for Legacy .html URLs */}
+          <Route path="/index.html" element={<Navigate to="/" replace />} />
+          <Route path="/explore.html" element={<Navigate to="/explore" replace />} />
+          <Route path="/project.html" element={<Navigate to="/explore" replace />} />
+          <Route path="/submit-project.html" element={<Navigate to="/submit-project" replace />} />
+          <Route path="/communities.html" element={<Navigate to="/communities" replace />} />
+          <Route path="/community.html" element={<Navigate to="/communities" replace />} />
+          <Route path="/hackathons.html" element={<Navigate to="/hackathons" replace />} />
+          <Route path="/hackathon.html" element={<Navigate to="/hackathons" replace />} />
+          <Route path="/squads.html" element={<Navigate to="/squads" replace />} />
+          <Route path="/portfolio.html" element={<Navigate to="/portfolio" replace />} />
+          <Route path="/profile.html" element={<Navigate to="/profile" replace />} />
+          <Route path="/leaderboard.html" element={<Navigate to="/leaderboard" replace />} />
+          <Route path="/codex.html" element={<Navigate to="/codex" replace />} />
+          <Route path="/settings.html" element={<Navigate to="/settings" replace />} />
+          <Route path="/login.html" element={<Navigate to="/login" replace />} />
+          <Route path="/signup.html" element={<Navigate to="/signup" replace />} />
+
+          {/* 404 Fallback */}
+          <Route
+            path="*"
+            element={
+              <PlaceholderPage
+                title="404 — Page Not Found"
+                eyebrow="Error"
+                tier="AppShell"
+                description="The destination you requested does not exist or has been relocated."
+                quickLinks={[
+                  { path: '/', label: 'Back to Home' },
+                  { path: '/explore', label: 'Explore Projects' },
+                ]}
+              />
+            }
+          />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
