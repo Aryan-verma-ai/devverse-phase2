@@ -57,10 +57,14 @@ test('server/config/env.js exists', () => assert(fileExists('server/config/env.j
 test('server/config/database.js exists', () => assert(fileExists('server/config/database.js')));
 test('server/models/User.js exists', () => assert(fileExists('server/models/User.js')));
 test('server/models/Project.js exists', () => assert(fileExists('server/models/Project.js')));
+test('server/models/Like.js exists', () => assert(fileExists('server/models/Like.js')));
+test('server/models/Bookmark.js exists', () => assert(fileExists('server/models/Bookmark.js')));
 test('server/models/index.js exists', () => assert(fileExists('server/models/index.js')));
 test('server/routes/projects.js exists', () => assert(fileExists('server/routes/projects.js')));
 test('server/controllers/projectController.js exists', () => assert(fileExists('server/controllers/projectController.js')));
 test('server/services/projectService.js exists', () => assert(fileExists('server/services/projectService.js')));
+test('server/services/interactionService.js exists', () => assert(fileExists('server/services/interactionService.js')));
+test('server/controllers/interactionController.js exists', () => assert(fileExists('server/controllers/interactionController.js')));
 test('server/validators/projectValidator.js exists', () => assert(fileExists('server/validators/projectValidator.js')));
 test('server/middleware/devAuthGuard.js exists', () => assert(fileExists('server/middleware/devAuthGuard.js')));
 test('server/routes/auth.js exists', () => assert(fileExists('server/routes/auth.js')));
@@ -270,9 +274,13 @@ const filesToScan = [
   'server/config/database.js',
   'server/models/User.js',
   'server/models/Project.js',
+  'server/models/Like.js',
+  'server/models/Bookmark.js',
   'server/routes/projects.js',
   'server/controllers/projectController.js',
+  'server/controllers/interactionController.js',
   'server/services/projectService.js',
+  'server/services/interactionService.js',
   'server/validators/projectValidator.js',
   'server/middleware/devAuthGuard.js',
   'server/routes/auth.js',

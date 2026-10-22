@@ -29,7 +29,7 @@ export const projectController = {
    */
   async getById(req, res, next) {
     try {
-      const project = await projectService.getProjectById(req.params.id);
+      const project = await projectService.getProjectById(req.params.id, req.user?._id);
       res.status(200).json({
         status: 'ok',
         data: project,

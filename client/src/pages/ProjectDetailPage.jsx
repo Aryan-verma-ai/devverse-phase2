@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { getSeedProjectById, getSeedAuthor, getRelatedProjects, validateUrlProtocol } from '../data/seedProjects';
 import projectService from '../services/projectService';
+import { useAuth } from '../context/AuthContext';
 import ProjectCard from '../components/ui/ProjectCard';
 import EmptyState from '../components/ui/EmptyState';
 import LoadingState from '../components/ui/LoadingState';
@@ -29,6 +30,7 @@ const DEFAULT_FEATURES = [
  */
 export default function ProjectDetailPage() {
   const { id } = useParams();
+  const { user } = useAuth();
 
   // Project data & lifecycle state
   const [project, setProject] = useState(null);
@@ -36,26 +38,36 @@ export default function ProjectDetailPage() {
   const [notFound, setNotFound] = useState(false);
   const [error, setError] = useState(null);
 
-  // Local interaction state
+  // Interaction state
   const [liked, setLiked] = useState(false);
   const [bookmarked, setBookmarked] = useState(false);
+  const [likesCount, setLikesCount] = useState(0);
+  const [interactionError, setInteractionError] = useState(null);
+  const [interactionLoading, setInteractionLoading] = useState(false);
   const [shareFeedback, setShareFeedback] = useState(false);
 
   const loadProject = async () => {
     setLoading(true);
     setNotFound(false);
     setError(null);
+    setInteractionError(null);
 
     try {
       // 1. Attempt API fetch
       const apiProject = await projectService.getProjectById(id);
       setProject(apiProject);
+      setLiked(Boolean(apiProject?.liked));
+      setBookmarked(Boolean(apiProject?.bookmarked));
+      setLikesCount(apiProject?.likes ?? 0);
     } catch (err) {
       // If API reports 404 or INVALID_ID, check if it's a seed project ID (e.g. 'p1')
       if (err.status === 404 || err.code === 'NOT_FOUND' || err.code === 'INVALID_ID') {
         const seedFallback = getSeedProjectById(id);
         if (seedFallback) {
           setProject(seedFallback);
+          setLiked(false);
+          setBookmarked(false);
+          setLikesCount(seedFallback.likes ?? 0);
           return;
         }
         setNotFound(true);
@@ -70,7 +82,73 @@ export default function ProjectDetailPage() {
 
   useEffect(() => {
     loadProject();
-  }, [id]);
+  }, [id, user]);
+
+  const handleToggleLike = async () => {
+    if (!user) {
+      setInteractionError('Please sign in to like projects.');
+      return;
+    }
+    if (interactionLoading) return;
+    setInteractionLoading(true);
+    setInteractionError(null);
+
+    const prevLiked = liked;
+    const prevCount = likesCount;
+
+    setLiked(!prevLiked);
+    setLikesCount(prevLiked ? Math.max(0, prevCount - 1) : prevCount + 1);
+
+    try {
+      if (prevLiked) {
+        const res = await projectService.unlikeProject(id);
+        setLiked(false);
+        if (typeof res?.likesCount === 'number') {
+          setLikesCount(res.likesCount);
+        }
+      } else {
+        const res = await projectService.likeProject(id);
+        setLiked(true);
+        if (typeof res?.likesCount === 'number') {
+          setLikesCount(res.likesCount);
+        }
+      }
+    } catch (err) {
+      setLiked(prevLiked);
+      setLikesCount(prevCount);
+      setInteractionError(err.message || 'Unable to update like status.');
+    } finally {
+      setInteractionLoading(false);
+    }
+  };
+
+  const handleToggleBookmark = async () => {
+    if (!user) {
+      setInteractionError('Please sign in to bookmark projects.');
+      return;
+    }
+    if (interactionLoading) return;
+    setInteractionLoading(true);
+    setInteractionError(null);
+
+    const prevBookmarked = bookmarked;
+    setBookmarked(!prevBookmarked);
+
+    try {
+      if (prevBookmarked) {
+        await projectService.unbookmarkProject(id);
+        setBookmarked(false);
+      } else {
+        await projectService.bookmarkProject(id);
+        setBookmarked(true);
+      }
+    } catch (err) {
+      setBookmarked(prevBookmarked);
+      setInteractionError(err.message || 'Unable to update bookmark status.');
+    } finally {
+      setInteractionLoading(false);
+    }
+  };
 
   // Retrieve author info and related projects
   const author = useMemo(() => {
@@ -138,7 +216,6 @@ export default function ProjectDetailPage() {
     ? TECH_GRADIENTS[project.gradient % TECH_GRADIENTS.length]
     : project.gradient || TECH_GRADIENTS[0];
 
-  const likesCount = liked ? project.likes + 1 : project.likes;
   const viewsCount = typeof project.views === 'number' ? project.views.toLocaleString() : (project.views || '0');
 
   // External Links — only render when the project has explicit URLs set.
@@ -284,33 +361,44 @@ export default function ProjectDetailPage() {
 
             {/* Action Buttons */}
             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
-              {/* Like Button */}
-              <button
-                type="button"
-                className={`btn btn-ghost ${liked ? 'liked' : ''}`}
-                onClick={() => setLiked((prev) => !prev)}
-                aria-label={`Like this project, currently ${likesCount} likes`}
-                style={{ color: liked ? 'var(--coral)' : undefined }}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill={liked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-                </svg>
-                <span>{likesCount.toLocaleString()}</span>
-              </button>
+              {interactionError && (
+                <div style={{ width: '100%', marginBottom: '8px' }}>
+                  <StatusMessage
+                    type="error"
+                    message={interactionError}
+                    onDismiss={() => setInteractionError(null)}
+                  />
+                </div>
+              )}
+                {/* Like Button */}
+                <button
+                  type="button"
+                  className={`btn btn-ghost ${liked ? 'liked' : ''}`}
+                  onClick={handleToggleLike}
+                  disabled={interactionLoading}
+                  aria-label={`Like this project, currently ${likesCount} likes`}
+                  style={{ color: liked ? 'var(--coral)' : undefined }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill={liked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                  </svg>
+                  <span>{likesCount.toLocaleString()}</span>
+                </button>
 
-              {/* Bookmark Button */}
-              <button
-                type="button"
-                className={`btn btn-ghost ${bookmarked ? 'bookmarked' : ''}`}
-                onClick={() => setBookmarked((prev) => !prev)}
-                aria-label={`Bookmark ${project.title}`}
-                style={{ color: bookmarked ? 'var(--accent)' : undefined }}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill={bookmarked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
-                </svg>
-                <span>{bookmarked ? 'Saved' : 'Save'}</span>
-              </button>
+                {/* Bookmark Button */}
+                <button
+                  type="button"
+                  className={`btn btn-ghost ${bookmarked ? 'bookmarked' : ''}`}
+                  onClick={handleToggleBookmark}
+                  disabled={interactionLoading}
+                  aria-label={`Bookmark ${project.title}`}
+                  style={{ color: bookmarked ? 'var(--accent)' : undefined }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill={bookmarked ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z" />
+                  </svg>
+                  <span>{bookmarked ? 'Saved' : 'Save'}</span>
+                </button>
 
               {/* Share Button */}
               <button

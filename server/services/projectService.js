@@ -10,6 +10,8 @@
 
 import mongoose from 'mongoose';
 import Project from '../models/Project.js';
+import Like from '../models/Like.js';
+import Bookmark from '../models/Bookmark.js';
 import AppError from '../utils/AppError.js';
 
 export const projectService = {
@@ -86,12 +88,13 @@ export const projectService = {
   },
 
   /**
-   * Retrieves a single project by ID with populated owner.
+   * Retrieves a single project by ID with populated owner and interaction status.
    *
    * @param {string} id
+   * @param {string|mongoose.Types.ObjectId|null} [requestingUserId=null]
    * @returns {Promise<Object>}
    */
-  async getProjectById(id) {
+  async getProjectById(id, requestingUserId = null) {
     if (!mongoose.isValidObjectId(id)) {
       throw new AppError('Invalid project ID format.', 400, 'INVALID_ID');
     }
@@ -104,7 +107,21 @@ export const projectService = {
       throw new AppError('Project not found.', 404, 'NOT_FOUND');
     }
 
-    return project;
+    const projectObj = project.toJSON();
+
+    if (requestingUserId) {
+      const [likeDoc, bookmarkDoc] = await Promise.all([
+        Like.exists({ user: requestingUserId, project: id }),
+        Bookmark.exists({ user: requestingUserId, project: id }),
+      ]);
+      projectObj.liked = Boolean(likeDoc);
+      projectObj.bookmarked = Boolean(bookmarkDoc);
+    } else {
+      projectObj.liked = false;
+      projectObj.bookmarked = false;
+    }
+
+    return projectObj;
   },
 
   /**

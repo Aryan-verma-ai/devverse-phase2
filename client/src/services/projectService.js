@@ -35,6 +35,8 @@ export function normalizeProject(p) {
     gradient: typeof p.gradient === 'number' ? p.gradient : 0,
     likes: p.likesCount ?? p.likes ?? 0,
     views: p.viewsCount ?? p.views ?? 0,
+    liked: Boolean(p.liked),
+    bookmarked: Boolean(p.bookmarked),
     author: p.owner?.username || p.author || 'developer',
     owner: p.owner || { username: p.author || 'developer', displayName: p.author || 'Developer' },
     createdAt: p.createdAt || null,
@@ -107,6 +109,60 @@ export const projectService = {
   async deleteProject(id) {
     const res = await apiClient.delete(`/projects/${id}`);
     return res?.data;
+  },
+
+  /**
+   * Likes a project for the authenticated user.
+   *
+   * @param {string} id
+   * @returns {Promise<{ liked: boolean, likesCount: number }>}
+   */
+  async likeProject(id) {
+    const res = await apiClient.post(`/projects/${id}/like`);
+    return res?.data;
+  },
+
+  /**
+   * Unlikes a project for the authenticated user.
+   *
+   * @param {string} id
+   * @returns {Promise<{ liked: boolean, likesCount: number }>}
+   */
+  async unlikeProject(id) {
+    const res = await apiClient.delete(`/projects/${id}/like`);
+    return res?.data;
+  },
+
+  /**
+   * Bookmarks a project for the authenticated user.
+   *
+   * @param {string} id
+   * @returns {Promise<{ bookmarked: boolean }>}
+   */
+  async bookmarkProject(id) {
+    const res = await apiClient.post(`/projects/${id}/bookmark`);
+    return res?.data;
+  },
+
+  /**
+   * Unbookmarks a project for the authenticated user.
+   *
+   * @param {string} id
+   * @returns {Promise<{ bookmarked: boolean }>}
+   */
+  async unbookmarkProject(id) {
+    const res = await apiClient.delete(`/projects/${id}/bookmark`);
+    return res?.data;
+  },
+
+  /**
+   * Retrieves all liked and bookmarked project IDs for current user.
+   *
+   * @returns {Promise<{ likedProjectIds: string[], bookmarkedProjectIds: string[] }>}
+   */
+  async getUserInteractions() {
+    const res = await apiClient.get('/projects/user-interactions');
+    return res?.data || { likedProjectIds: [], bookmarkedProjectIds: [] };
   },
 };
 

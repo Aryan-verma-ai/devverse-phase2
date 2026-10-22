@@ -6,6 +6,7 @@ import LoadingState from '../components/ui/LoadingState';
 import StatusMessage from '../components/ui/StatusMessage';
 import Button from '../components/ui/Button';
 import projectService from '../services/projectService';
+import { useAuth } from '../context/AuthContext';
 import { getSeedProjects, getSeedCategories, filterAndSortProjects } from '../data/seedProjects';
 
 const DIFFICULTIES = ['All', 'Beginner', 'Intermediate', 'Advanced'];
@@ -33,9 +34,12 @@ export default function ExplorePage() {
   const [difficulty, setDifficulty] = useState('All');
   const [sort, setSort] = useState('trending');
 
-  // Interactive likes and bookmarks state (local interactive exploration)
+  const { user } = useAuth();
+
+  // Interactive likes and bookmarks state
   const [likedIds, setLikedIds] = useState(() => new Set());
   const [bookmarkedIds, setBookmarkedIds] = useState(() => new Set());
+  const [interactionNotice, setInteractionNotice] = useState(null);
 
   // API query & data state
   const [projects, setProjects] = useState([]);
@@ -43,6 +47,31 @@ export default function ExplorePage() {
   const [error, setError] = useState(null);
   const [dataMode, setDataMode] = useState('api'); // 'api' | 'demo'
   const [totalCount, setTotalCount] = useState(0);
+
+  // Hydrate authenticated user interactions from server
+  useEffect(() => {
+    let isMounted = true;
+    async function loadInteractions() {
+      if (!user) {
+        setLikedIds(new Set());
+        setBookmarkedIds(new Set());
+        return;
+      }
+      try {
+        const data = await projectService.getUserInteractions();
+        if (isMounted && data) {
+          setLikedIds(new Set(data.likedProjectIds || []));
+          setBookmarkedIds(new Set(data.bookmarkedProjectIds || []));
+        }
+      } catch (err) {
+        console.error('Failed to load user interactions:', err);
+      }
+    }
+    loadInteractions();
+    return () => {
+      isMounted = false;
+    };
+  }, [user]);
 
   const availableCategories = useMemo(() => ['All', ...getSeedCategories()], []);
 
@@ -156,22 +185,103 @@ export default function ExplorePage() {
   const isFiltered = search.trim() !== '' || category !== 'All' || difficulty !== 'All' || sort !== 'trending';
 
   // Like & Bookmark toggle handlers
-  const handleToggleLike = (e, projectId) => {
+  const handleToggleLike = async (e, projectId) => {
+    if (!user) {
+      setInteractionNotice({ type: 'warning', message: 'Please sign in to like projects.' });
+      return;
+    }
+    setInteractionNotice(null);
+
+    const isCurrentlyLiked = likedIds.has(projectId);
+
+    // Optimistic UI updates
     setLikedIds((prev) => {
       const next = new Set(prev);
-      if (next.has(projectId)) next.delete(projectId);
+      if (isCurrentlyLiked) next.delete(projectId);
       else next.add(projectId);
       return next;
     });
+
+    setProjects((prev) =>
+      prev.map((p) => {
+        if ((p.id || p._id) === projectId) {
+          const delta = isCurrentlyLiked ? -1 : 1;
+          return { ...p, likes: Math.max(0, (p.likes || 0) + delta) };
+        }
+        return p;
+      })
+    );
+
+    try {
+      if (isCurrentlyLiked) {
+        const res = await projectService.unlikeProject(projectId);
+        if (typeof res?.likesCount === 'number') {
+          setProjects((prev) =>
+            prev.map((p) => ((p.id || p._id) === projectId ? { ...p, likes: res.likesCount } : p))
+          );
+        }
+      } else {
+        const res = await projectService.likeProject(projectId);
+        if (typeof res?.likesCount === 'number') {
+          setProjects((prev) =>
+            prev.map((p) => ((p.id || p._id) === projectId ? { ...p, likes: res.likesCount } : p))
+          );
+        }
+      }
+    } catch (err) {
+      // Revert optimistic changes on failure
+      setLikedIds((prev) => {
+        const next = new Set(prev);
+        if (isCurrentlyLiked) next.add(projectId);
+        else next.delete(projectId);
+        return next;
+      });
+      setProjects((prev) =>
+        prev.map((p) => {
+          if ((p.id || p._id) === projectId) {
+            const delta = isCurrentlyLiked ? 1 : -1;
+            return { ...p, likes: Math.max(0, (p.likes || 0) + delta) };
+          }
+          return p;
+        })
+      );
+      setInteractionNotice({ type: 'error', message: err.message || 'Failed to update like status.' });
+    }
   };
 
-  const handleToggleBookmark = (e, projectId) => {
+  const handleToggleBookmark = async (e, projectId) => {
+    if (!user) {
+      setInteractionNotice({ type: 'warning', message: 'Please sign in to bookmark projects.' });
+      return;
+    }
+    setInteractionNotice(null);
+
+    const isCurrentlyBookmarked = bookmarkedIds.has(projectId);
+
+    // Optimistic UI update
     setBookmarkedIds((prev) => {
       const next = new Set(prev);
-      if (next.has(projectId)) next.delete(projectId);
+      if (isCurrentlyBookmarked) next.delete(projectId);
       else next.add(projectId);
       return next;
     });
+
+    try {
+      if (isCurrentlyBookmarked) {
+        await projectService.unbookmarkProject(projectId);
+      } else {
+        await projectService.bookmarkProject(projectId);
+      }
+    } catch (err) {
+      // Revert on error
+      setBookmarkedIds((prev) => {
+        const next = new Set(prev);
+        if (isCurrentlyBookmarked) next.add(projectId);
+        else next.delete(projectId);
+        return next;
+      });
+      setInteractionNotice({ type: 'error', message: err.message || 'Failed to update bookmark status.' });
+    }
   };
 
   return (
@@ -361,6 +471,17 @@ export default function ExplorePage() {
           </div>
         </div>
 
+        {/* Interaction Notice (e.g. login warning or failure notice) */}
+        {interactionNotice && (
+          <div style={{ marginBottom: '20px' }}>
+            <StatusMessage
+              type={interactionNotice.type}
+              message={interactionNotice.message}
+              onDismiss={() => setInteractionNotice(null)}
+            />
+          </div>
+        )}
+
         {/* Loading State */}
         {loading && (
           <LoadingState skeleton count={6} label="Loading projects from DevVerse catalog..." />
@@ -400,14 +521,15 @@ export default function ExplorePage() {
         {!loading && !error && projects.length > 0 && (
           <div className="grid grid-3" id="explore-grid">
             {projects.map((project) => {
-              const isLiked = likedIds.has(project.id);
-              const isBookmarked = bookmarkedIds.has(project.id);
-              const displayedLikes = isLiked ? project.likes + 1 : project.likes;
+              const projId = project.id || project._id;
+              const isLiked = likedIds.has(projId);
+              const isBookmarked = bookmarkedIds.has(projId);
+              const displayedLikes = project.likes ?? 0;
 
               return (
                 <ProjectCard
-                  key={project.id}
-                  id={project.id}
+                  key={projId}
+                  id={projId}
                   title={project.title}
                   desc={project.desc}
                   tags={project.tags}
