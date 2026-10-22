@@ -122,16 +122,19 @@ test('app.js: 404 response is JSON (not HTML)', () => {
   assert(appSrc.includes('.json('), 'Unknown /api route should respond with JSON');
 });
 
-test('app.js: has 4-argument error handler (err, req, res, next)', () => {
+// Error handler was extracted to middleware/errorHandler.js in Prompt 16.
+const errorHandlerSrc = read('server/middleware/errorHandler.js');
+
+test('errorHandler.js: has 4-argument error handler (err, req, res, next)', () => {
   assert(
-    appSrc.includes('(err,') || appSrc.includes('(err, '),
-    'Missing Express 4-argument error handler'
+    errorHandlerSrc.includes('(err,') || errorHandlerSrc.includes('(err, '),
+    'Missing Express 4-argument error handler in errorHandler.js'
   );
 });
 
-test('app.js: error handler does NOT expose stack trace in production', () => {
+test('errorHandler.js: does NOT expose stack trace in production', () => {
   assert(
-    appSrc.includes('production') && appSrc.includes('stack'),
+    errorHandlerSrc.includes('production') && errorHandlerSrc.includes('stack'),
     'Error handler should conditionally include stack trace (dev only)'
   );
 });

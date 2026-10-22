@@ -3,14 +3,17 @@
  *
  * Creates and configures the Express app.
  * Intentionally separated from the HTTP server binding in index.js so the
- * same app instance can be imported cleanly by integration tests (Prompt 16+)
- * without starting a real TCP listener.
+ * same app instance can be imported cleanly by integration tests without
+ * starting a real TCP listener.
  *
- * What belongs here:
- *   - Middleware registration (cors, JSON parsing, logging)
- *   - Route mounting
- *   - 404 handler for unknown /api routes
- *   - Centralized error handler
+ * Middleware pipeline order (order matters in Express):
+ *   1. CORS
+ *   2. JSON body parser (with size limit + malformed-JSON error handling)
+ *   3. Request logger
+ *   4. Feature routes  (added in later prompts)
+ *   5. /api health route
+ *   6. /api/* not-found handler
+ *   7. Centralized error handler (must be last)
  *
  * What does NOT belong here:
  *   - database.connect() — belongs in index.js
@@ -21,11 +24,16 @@
 import express from 'express';
 import cors from 'cors';
 import env from './config/env.js';
+import requestLogger from './middleware/requestLogger.js';
+import notFound from './middleware/notFound.js';
+import errorHandler from './middleware/errorHandler.js';
+import { validateBody } from './utils/validate.js';
+import AppError from './utils/AppError.js';
 
 const app = express();
 
 // ---------------------------------------------------------------------------
-// CORS
+// 1. CORS
 // Allow requests from the Vite dev server during development.
 // In production the React build is served from the same origin, so CORS
 // is only needed in development (or if API and frontend are on separate domains).
@@ -38,25 +46,31 @@ app.use(
 );
 
 // ---------------------------------------------------------------------------
-// Body parsing
-// Limit JSON body size to 1 MB to avoid accidentally accepting huge payloads
-// before a proper size/validation strategy is in place.
+// 2. JSON body parser
+// express.json() emits a SyntaxError for malformed JSON — the centralized
+// errorHandler catches and formats it as { code: 'BAD_JSON', status: 400 }.
+// The 1 MB limit rejects oversized payloads before they are parsed.
 // ---------------------------------------------------------------------------
 app.use(express.json({ limit: '1mb' }));
 
 // ---------------------------------------------------------------------------
-// Request logger
-// Simple, safe format: method, URL, timestamp — no request body or headers
-// that might contain sensitive values.
+// 3. Request logger
+// Logs method, URL, response status, and duration on response finish.
+// Body and headers are never logged.
 // ---------------------------------------------------------------------------
-app.use((req, _res, next) => {
-  const ts = new Date().toISOString();
-  console.log(`[${ts}]  ${req.method}  ${req.url}`);
-  next();
-});
+app.use(requestLogger);
 
 // ---------------------------------------------------------------------------
-// API routes
+// 4. Feature routes
+// Route files are mounted here as they are added in later prompts.
+// Example (Prompt 18):
+//   import projectRoutes from './routes/projects.js';
+//   app.use('/api/projects', projectRoutes);
+// ---------------------------------------------------------------------------
+// (none yet — feature routes arrive in Prompt 18+)
+
+// ---------------------------------------------------------------------------
+// 5. Health endpoint
 // ---------------------------------------------------------------------------
 
 /**
@@ -74,40 +88,56 @@ app.get('/api/health', (_req, res) => {
 });
 
 // ---------------------------------------------------------------------------
-// Unknown /api route → 404 (must NOT fall through to the React app)
-// This handler must be registered AFTER all real API routes and BEFORE the
-// generic error handler.
+// DEV/TEST-ONLY routes
+// These routes exercise middleware without needing a real feature route.
+// They are gated behind NODE_ENV !== 'production' so they are stripped in
+// production builds and never exposed to real users.
 // ---------------------------------------------------------------------------
-app.use('/api', (_req, res) => {
-  res.status(404).json({
-    status: 'error',
-    code: 'NOT_FOUND',
-    message: 'The requested API endpoint does not exist.',
+if (env.NODE_ENV !== 'production') {
+  /**
+   * POST /api/_test/validate
+   * Exercises the validateBody middleware with a minimal schema.
+   * Used by integration tests only.
+   */
+  app.post(
+    '/api/_test/validate',
+    validateBody({
+      title: { required: true, type: 'string', minLength: 3, maxLength: 80, label: 'Title' },
+      url:   { required: false, type: 'string', pattern: /^https?:\/\//, label: 'URL' },
+    }),
+    (_req, res) => {
+      res.status(200).json({ status: 'ok', message: 'Validation passed.' });
+    }
+  );
+
+  /**
+   * GET /api/_test/error
+   * Throws a known AppError to test the error handler pipeline.
+   */
+  app.get('/api/_test/error', (_req, _res, next) => {
+    next(new AppError('Test error from route.', 418, 'TEST_ERROR'));
   });
-});
 
-// ---------------------------------------------------------------------------
-// Centralized error handler
-// Express identifies a 4-argument middleware as an error handler.
-// Catches any error passed via next(err) from route handlers.
-// Never exposes stack traces to clients in non-development environments.
-// ---------------------------------------------------------------------------
-// eslint-disable-next-line no-unused-vars
-app.use((err, _req, res, _next) => {
-  const status = err.status || err.statusCode || 500;
-  const message = err.message || 'An unexpected error occurred.';
-
-  if (env.NODE_ENV !== 'production') {
-    console.error('[Error]', err);
-  }
-
-  res.status(status).json({
-    status: 'error',
-    code: err.code || 'INTERNAL_ERROR',
-    message,
-    // Stack trace only in development — never in production
-    ...(env.NODE_ENV === 'development' && { stack: err.stack }),
+  /**
+   * GET /api/_test/unexpected
+   * Throws an unexpected (non-AppError) error to test the 500 path.
+   */
+  app.get('/api/_test/unexpected', () => {
+    throw new Error('Simulated unexpected server error.');
   });
-});
+}
+
+// ---------------------------------------------------------------------------
+// 6. Unknown /api route → 404
+// Must be AFTER all real API routes and BEFORE the error handler.
+// ---------------------------------------------------------------------------
+app.use('/api', notFound);
+
+// ---------------------------------------------------------------------------
+// 7. Centralized error handler
+// Must be the LAST middleware registered — Express identifies a 4-argument
+// function as an error handler.
+// ---------------------------------------------------------------------------
+app.use(errorHandler);
 
 export default app;
