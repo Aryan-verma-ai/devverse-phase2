@@ -23,11 +23,14 @@
 
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import env from './config/env.js';
 import { getDatabaseStatus } from './config/database.js';
 import requestLogger from './middleware/requestLogger.js';
+import { authenticateUser } from './middleware/auth.js';
 import notFound from './middleware/notFound.js';
 import errorHandler from './middleware/errorHandler.js';
+import authRoutes from './routes/auth.js';
 import projectRoutes from './routes/projects.js';
 import { validateBody } from './utils/validate.js';
 import AppError from './utils/AppError.js';
@@ -48,12 +51,13 @@ app.use(
 );
 
 // ---------------------------------------------------------------------------
-// 2. JSON body parser
+// 2. Body & Cookie parsers
 // express.json() emits a SyntaxError for malformed JSON — the centralized
 // errorHandler catches and formats it as { code: 'BAD_JSON', status: 400 }.
 // The 1 MB limit rejects oversized payloads before they are parsed.
 // ---------------------------------------------------------------------------
 app.use(express.json({ limit: '1mb' }));
+app.use(cookieParser());
 
 // ---------------------------------------------------------------------------
 // 3. Request logger
@@ -63,8 +67,14 @@ app.use(express.json({ limit: '1mb' }));
 app.use(requestLogger);
 
 // ---------------------------------------------------------------------------
-// 4. Feature routes
+// 4. Authentication (populates req.user from cookie or Bearer header)
 // ---------------------------------------------------------------------------
+app.use(authenticateUser);
+
+// ---------------------------------------------------------------------------
+// 5. Feature routes
+// ---------------------------------------------------------------------------
+app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 
 // ---------------------------------------------------------------------------

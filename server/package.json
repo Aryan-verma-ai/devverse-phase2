@@ -9,9 +9,11 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "node tests/middleware.test.js && node tests/database.test.js && node tests/models.test.js && node tests/projects.test.js"
+    "test": "node tests/middleware.test.js && node tests/database.test.js && node tests/models.test.js && node tests/projects.test.js && node tests/auth.test.js"
   },
   "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.0",
