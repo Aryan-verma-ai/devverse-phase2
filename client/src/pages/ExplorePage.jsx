@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import ProjectCard from '../components/ui/ProjectCard';
 import EmptyState from '../components/ui/EmptyState';
-import Button from '../components/ui/Button';
 import { getSeedProjects, getSeedCategories, filterAndSortProjects } from '../data/seedProjects';
 
 const DIFFICULTIES = ['All', 'Beginner', 'Intermediate', 'Advanced'];
@@ -34,8 +33,10 @@ export default function ExplorePage() {
   const [likedIds, setLikedIds] = useState(() => new Set());
   const [bookmarkedIds, setBookmarkedIds] = useState(() => new Set());
 
-  // Canonical projects and derived categories
-  const allProjects = useMemo(() => getSeedProjects(), []);
+  // Projects list — derived fresh each render so session-submitted projects
+  // appear immediately without needing a stale-memo invalidation mechanism.
+  // getSeedProjects() is cheap (two array spreads) so no memoisation needed.
+  const allProjects = getSeedProjects();
   const availableCategories = useMemo(() => ['All', ...getSeedCategories()], []);
 
   // Sync category changes with URL query parameter
@@ -128,14 +129,12 @@ export default function ExplorePage() {
               Search, filter, and sort through everything the DevVerse community is building.
             </p>
           </div>
-          <Button
-            as="a"
-            href="/submit-project"
-            variant="primary"
-            size="md"
+          <Link
+            to="/submit-project"
+            className="btn btn-primary btn-md"
           >
             + Submit a project
-          </Button>
+          </Link>
         </div>
       </section>
 

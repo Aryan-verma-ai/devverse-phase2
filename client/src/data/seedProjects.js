@@ -247,6 +247,7 @@ export function addTemporaryProject(data) {
     features: Array.isArray(data.features)
       ? data.features
       : (data.features ? data.features.split(',').map((f) => f.trim()).filter(Boolean) : []),
+    timeline: Array.isArray(data.timeline) ? data.timeline : [],
     category: data.category || 'Web Application',
     difficulty: data.difficulty || 'Intermediate',
     likes: 0,
@@ -261,6 +262,7 @@ export function addTemporaryProject(data) {
   userSubmittedProjects.unshift(newProject);
   return newProject;
 }
+
 
 /**
  * Returns list of projects submitted by the user in this session.
@@ -320,9 +322,20 @@ export function filterAndSortProjects(projects, {
         return b.likes - a.likes;
       case 'views':
         return b.views - a.views;
-      case 'newest':
-        // Descending by project id numeric suffix (e.g. p15 > p14 > ... > p1)
-        return parseInt(b.id.replace('p', ''), 10) - parseInt(a.id.replace('p', ''), 10);
+      case 'newest': {
+        // For canonical IDs like p1–p15, sort by numeric suffix descending.
+        // For session-submitted IDs like user-{timestamp}, they sort before
+        // canonical projects because their numeric parse is NaN — we treat
+        // NaN as Infinity (i.e., always "newer" than canonical projects).
+        const numA = parseInt(a.id.replace(/^p/, ''), 10);
+        const numB = parseInt(b.id.replace(/^p/, ''), 10);
+        const valA = isNaN(numA) ? Infinity : numA;
+        const valB = isNaN(numB) ? Infinity : numB;
+        if (valA !== valB) return valB - valA;
+        // Tie-break by string comparison for stability
+        return b.id.localeCompare(a.id);
+      }
+
       case 'trending':
       default: {
         const scoreA = a.likes + (a.views / 10);

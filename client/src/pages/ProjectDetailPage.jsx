@@ -61,12 +61,11 @@ export default function ProjectDetailPage() {
   const likesCount = liked ? project.likes + 1 : project.likes;
   const viewsCount = typeof project.views === 'number' ? project.views.toLocaleString() : project.views;
 
-  // External Links validation
-  const rawGithubUrl = project.githubUrl || `https://github.com/${project.author || 'devverse'}/${project.id}`;
-  const safeGithubUrl = validateUrlProtocol(rawGithubUrl);
+  // External Links — only render when the project has explicit URLs set.
+  // Do NOT fabricate URLs for projects that lack them.
+  const safeGithubUrl = project.githubUrl ? validateUrlProtocol(project.githubUrl) : null;
+  const safeDemoUrl = project.demoUrl ? validateUrlProtocol(project.demoUrl) : null;
 
-  const rawDemoUrl = project.demoUrl || `https://${project.id}.devverse.app`;
-  const safeDemoUrl = validateUrlProtocol(rawDemoUrl);
 
   const handleShareClick = async () => {
     try {
@@ -292,16 +291,21 @@ export default function ProjectDetailPage() {
               <p style={{ fontSize: '16px', lineHeight: 1.7, color: 'var(--text-primary)', marginBottom: '14px' }}>
                 {project.desc}
               </p>
-              <p style={{ fontSize: '14px', lineHeight: 1.6, color: 'var(--text-secondary)' }}>
-                This build focuses on real-world performance under load, a clean developer experience, and interface details most teams skip. It is actively maintained by {author.name} and open for community contributions.
-              </p>
+              {!project.isTemporary && (
+                <p style={{ fontSize: '14px', lineHeight: 1.6, color: 'var(--text-secondary)' }}>
+                  Actively maintained and open for community contributions.
+                </p>
+              )}
             </section>
 
             {/* Features Section */}
             <section className="glass" style={{ padding: '28px' }}>
               <div className="eyebrow">Key Architecture & Features</div>
               <div className="grid grid-2" style={{ gap: '14px' }}>
-                {DEFAULT_FEATURES.map((feature, idx) => (
+                {(project.features && project.features.length > 0
+                  ? project.features
+                  : DEFAULT_FEATURES
+                ).map((feature, idx) => (
                   <div
                     key={idx}
                     style={{
