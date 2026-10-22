@@ -4,6 +4,7 @@ import AppShell from './components/layout/AppShell';
 import PlaceholderPage from './pages/PlaceholderPage';
 import ExplorePage from './pages/ExplorePage';
 import ProjectDetailPage from './pages/ProjectDetailPage';
+import SubmitProjectPage from './pages/SubmitProjectPage';
 
 export default function App() {
   return (
@@ -35,20 +36,7 @@ export default function App() {
           <Route path="/projects/:id" element={<ProjectDetailPage />} />
 
           {/* 4. Submit Project */}
-          <Route
-            path="/submit-project"
-            element={
-              <PlaceholderPage
-                title="Submit a Project"
-                eyebrow="Publishing Studio"
-                tier="Tier 1"
-                description="Import repository metadata directly from public GitHub repos or submit custom project details manually."
-                quickLinks={[
-                  { path: '/explore', label: 'View Catalog' },
-                ]}
-              />
-            }
-          />
+          <Route path="/submit-project" element={<SubmitProjectPage />} />
 
           {/* 5. Communities Directory */}
           <Route

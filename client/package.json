@@ -10,7 +10,8 @@
     "test:routes": "node scripts/verify-routes.js",
     "test:components": "node scripts/verify-components.js",
     "test:explore": "node scripts/verify-explore.js",
-    "test:detail": "node scripts/verify-detail.js"
+    "test:detail": "node scripts/verify-detail.js",
+    "test:submit": "node scripts/verify-submit.js"
   },
   "dependencies": {
     "react": "^18.3.1",

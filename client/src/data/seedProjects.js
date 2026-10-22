@@ -205,21 +205,69 @@ export const SEED_PROJECTS = Object.freeze([
   },
 ]);
 
+// Temporary in-memory storage for projects submitted in the current client session
+const userSubmittedProjects = [];
+
 /**
- * Returns a copy of the canonical seed projects array.
+ * Returns a copy of the canonical seed projects combined with any session-submitted projects.
  * @returns {Array} Array of project objects
  */
 export function getSeedProjects() {
-  return [...SEED_PROJECTS];
+  return [...userSubmittedProjects, ...SEED_PROJECTS];
 }
 
 /**
- * Retrieves a single project by ID.
+ * Retrieves a single project by ID (checks session projects first, then canonical seed).
  * @param {string} id
  * @returns {Object|null}
  */
 export function getSeedProjectById(id) {
-  return SEED_PROJECTS.find((p) => p.id === id) || null;
+  return (
+    userSubmittedProjects.find((p) => p.id === id) ||
+    SEED_PROJECTS.find((p) => p.id === id) ||
+    null
+  );
+}
+
+/**
+ * Adds a new user project to the temporary in-memory session list.
+ * @param {Object} data
+ * @returns {Object} Newly created project
+ */
+export function addTemporaryProject(data) {
+  const newId = `user-${Date.now()}`;
+  const newProject = {
+    id: newId,
+    art: data.art || 'project-14.png',
+    title: data.title.trim(),
+    desc: data.desc.trim(),
+    tags: Array.isArray(data.tags)
+      ? data.tags
+      : data.tags.split(',').map((t) => t.trim()).filter(Boolean),
+    features: Array.isArray(data.features)
+      ? data.features
+      : (data.features ? data.features.split(',').map((f) => f.trim()).filter(Boolean) : []),
+    category: data.category || 'Web Application',
+    difficulty: data.difficulty || 'Intermediate',
+    likes: 0,
+    views: 1,
+    author: data.author || 'you',
+    gradient: typeof data.gradient === 'number' ? data.gradient : Math.floor(Math.random() * 5),
+    githubUrl: data.githubUrl ? data.githubUrl.trim() : '',
+    demoUrl: data.demoUrl ? data.demoUrl.trim() : '',
+    isTemporary: true,
+  };
+
+  userSubmittedProjects.unshift(newProject);
+  return newProject;
+}
+
+/**
+ * Returns list of projects submitted by the user in this session.
+ * @returns {Array}
+ */
+export function getUserSubmittedProjects() {
+  return [...userSubmittedProjects];
 }
 
 /**
