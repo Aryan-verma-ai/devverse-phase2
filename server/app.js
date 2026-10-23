@@ -33,6 +33,7 @@ import errorHandler from './middleware/errorHandler.js';
 import authRoutes from './routes/auth.js';
 import projectRoutes from './routes/projects.js';
 import userRoutes from './routes/users.js';
+import communityRoutes from './routes/communities.js';
 import { validateBody } from './utils/validate.js';
 import AppError from './utils/AppError.js';
 
@@ -78,6 +79,7 @@ app.use(authenticateUser);
 app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/communities', communityRoutes);
 
 // ---------------------------------------------------------------------------
 // 5. Health endpoint

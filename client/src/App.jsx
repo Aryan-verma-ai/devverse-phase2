@@ -11,6 +11,8 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import ProfilePage from './pages/ProfilePage';
 import PortfolioPage from './pages/PortfolioPage';
+import CommunitiesPage from './pages/CommunitiesPage';
+import CommunityDetailPage from './pages/CommunityDetailPage';
 
 export default function App() {
   return (
@@ -53,37 +55,10 @@ export default function App() {
             />
 
           {/* 5. Communities Directory */}
-          <Route
-            path="/communities"
-            element={
-              <PlaceholderPage
-                title="Communities Directory"
-                eyebrow="Find Your People"
-                tier="Tier 3"
-                description="Connect with developers across specialized guilds: Rust, Frontend, ML, Systems, and Indie Hacking."
-                quickLinks={[
-                  { path: '/communities/c1', label: 'Rustaceans Guild Forum (c1)' },
-                  { path: '/squads', label: 'Squad Matching' },
-                ]}
-              />
-            }
-          />
+          <Route path="/communities" element={<CommunitiesPage />} />
 
           {/* 6. Community Forum Detail */}
-          <Route
-            path="/communities/:id"
-            element={
-              <PlaceholderPage
-                title="Community Forum"
-                eyebrow="Discussions & Threads"
-                tier="Tier 3"
-                description="Engage in technical discussions, start question threads, and post architectural answers."
-                quickLinks={[
-                  { path: '/communities', label: 'All Communities' },
-                ]}
-              />
-            }
-          />
+          <Route path="/communities/:id" element={<CommunityDetailPage />} />
 
           {/* 7. Hackathons Directory */}
           <Route

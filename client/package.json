@@ -17,7 +17,8 @@
     "test:api": "node scripts/test-api-client.js",
     "test:auth": "node scripts/test-auth-context.js",
     "test:profile": "node scripts/test-profile-portfolio.js",
-    "test:interactions": "node scripts/test-likes-bookmarks.js"
+    "test:interactions": "node scripts/test-likes-bookmarks.js",
+    "test:communities": "node scripts/test-communities.js"
   },
   "dependencies": {
     "react": "^18.3.1",

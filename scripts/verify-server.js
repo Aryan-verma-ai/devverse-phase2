@@ -81,6 +81,19 @@ test('docs/AUTH-DESIGN-DECISION.md exists', () => assert(fileExists('docs/AUTH-D
 test('.env.example exists at repo root', () => assert(fileExists('.env.example')));
 test('.gitignore exists at repo root', () => assert(fileExists('.gitignore')));
 
+// Prompt 25 — Community files
+test('server/models/Community.js exists', () => assert(fileExists('server/models/Community.js')));
+test('server/models/CommunityMembership.js exists', () => assert(fileExists('server/models/CommunityMembership.js')));
+test('server/config/seedCommunities.js exists', () => assert(fileExists('server/config/seedCommunities.js')));
+test('server/services/communityService.js exists', () => assert(fileExists('server/services/communityService.js')));
+test('server/controllers/communityController.js exists', () => assert(fileExists('server/controllers/communityController.js')));
+test('server/routes/communities.js exists', () => assert(fileExists('server/routes/communities.js')));
+test('client/src/services/communityService.js exists', () => assert(fileExists('client/src/services/communityService.js')));
+test('client/src/pages/CommunitiesPage.jsx exists', () => assert(fileExists('client/src/pages/CommunitiesPage.jsx')));
+test('client/src/pages/CommunityDetailPage.jsx exists', () => assert(fileExists('client/src/pages/CommunityDetailPage.jsx')));
+test('server/tests/communities.test.js exists', () => assert(fileExists('server/tests/communities.test.js')));
+test('client/scripts/test-communities.js exists', () => assert(fileExists('client/scripts/test-communities.js')));
+
 // ---------------------------------------------------------------------------
 // server/package.json checks
 // ---------------------------------------------------------------------------
@@ -293,6 +306,12 @@ const filesToScan = [
   'server/validators/userValidator.js',
   'server/middleware/auth.js',
   'server/utils/session.js',
+  // Prompt 25 — Communities
+  'server/models/Community.js',
+  'server/models/CommunityMembership.js',
+  'server/services/communityService.js',
+  'server/controllers/communityController.js',
+  'server/routes/communities.js',
 ];
 const suspiciousPatterns = [
   /mongodb\+srv:\/\/[^<\s]+:[^<\s]+@/i,   // real Atlas URI
