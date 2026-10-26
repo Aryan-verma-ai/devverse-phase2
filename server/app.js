@@ -34,6 +34,7 @@ import authRoutes from './routes/auth.js';
 import projectRoutes from './routes/projects.js';
 import userRoutes from './routes/users.js';
 import communityRoutes from './routes/communities.js';
+import threadRoutes from './routes/threads.js';
 import { validateBody } from './utils/validate.js';
 import AppError from './utils/AppError.js';
 
@@ -80,6 +81,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/communities', communityRoutes);
+app.use('/api/communities/:communityId/threads', threadRoutes);
 
 // ---------------------------------------------------------------------------
 // 5. Health endpoint

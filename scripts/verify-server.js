@@ -94,6 +94,17 @@ test('client/src/pages/CommunityDetailPage.jsx exists', () => assert(fileExists(
 test('server/tests/communities.test.js exists', () => assert(fileExists('server/tests/communities.test.js')));
 test('client/scripts/test-communities.js exists', () => assert(fileExists('client/scripts/test-communities.js')));
 
+// Prompt 26 — Thread & Reply files
+test('server/models/Thread.js exists', () => assert(fileExists('server/models/Thread.js')));
+test('server/models/Reply.js exists', () => assert(fileExists('server/models/Reply.js')));
+test('server/validators/threadValidator.js exists', () => assert(fileExists('server/validators/threadValidator.js')));
+test('server/services/threadService.js exists', () => assert(fileExists('server/services/threadService.js')));
+test('server/controllers/threadController.js exists', () => assert(fileExists('server/controllers/threadController.js')));
+test('server/routes/threads.js exists', () => assert(fileExists('server/routes/threads.js')));
+test('client/src/services/threadService.js exists', () => assert(fileExists('client/src/services/threadService.js')));
+test('server/tests/threads.test.js exists', () => assert(fileExists('server/tests/threads.test.js')));
+test('client/scripts/test-threads.js exists', () => assert(fileExists('client/scripts/test-threads.js')));
+
 // ---------------------------------------------------------------------------
 // server/package.json checks
 // ---------------------------------------------------------------------------
@@ -312,6 +323,13 @@ const filesToScan = [
   'server/services/communityService.js',
   'server/controllers/communityController.js',
   'server/routes/communities.js',
+  // Prompt 26 — Threads & Replies
+  'server/models/Thread.js',
+  'server/models/Reply.js',
+  'server/validators/threadValidator.js',
+  'server/services/threadService.js',
+  'server/controllers/threadController.js',
+  'server/routes/threads.js',
 ];
 const suspiciousPatterns = [
   /mongodb\+srv:\/\/[^<\s]+:[^<\s]+@/i,   // real Atlas URI

@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "node tests/middleware.test.js && node tests/database.test.js && node tests/models.test.js && node tests/projects.test.js && node tests/auth.test.js && node tests/protected-routes.test.js && node tests/users.test.js && node tests/likes-bookmarks.test.js && node tests/communities.test.js"
+    "test": "node tests/middleware.test.js && node tests/database.test.js && node tests/models.test.js && node tests/projects.test.js && node tests/auth.test.js && node tests/protected-routes.test.js && node tests/users.test.js && node tests/likes-bookmarks.test.js && node tests/communities.test.js && node tests/threads.test.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

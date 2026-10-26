@@ -8,3 +8,5 @@ export { default as Like } from './Like.js';
 export { default as Bookmark } from './Bookmark.js';
 export { default as Community } from './Community.js';
 export { default as CommunityMembership } from './CommunityMembership.js';
+export { default as Thread } from './Thread.js';
+export { default as Reply } from './Reply.js';
